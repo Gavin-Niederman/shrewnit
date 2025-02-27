@@ -32,6 +32,24 @@ pub trait UnitOf<M: Measure> {
     fn to_canonical(converted: Scalar) -> Scalar;
 }
 
+/// Represents the standard SI unit of any measure.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use shrewnit::Measure;
+/// 
+/// let velocity = 30.0 * shrewnit::MetersPerSecond;
+/// let distance = 100.0 * shrewnit::Meters;
+/// let time = 3.0 * shrewnit::Seconds;
+/// 
+/// println!("{}", velocity.to::<shrewnit::Si>());
+/// println!("{}", distance.to::<shrewnit::Si>());
+/// println!("{}", time.to::<shrewnit::Si>());
+/// ```
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
+pub struct Si;
+
 macro_rules! measure_conversions {
     {} => {};
     {$self:ty,} => {};
@@ -64,6 +82,7 @@ macro_rules! measure {
         $(#[$meta:meta])*
         $vis:vis $name:ident {
             canonical: $canonical_unit:ident,
+            si: $si_unit:ident,
 
             $(
                 $(#[$unit_meta:meta])*
@@ -200,6 +219,15 @@ macro_rules! measure {
             )?
         )*
 
+        impl UnitOf<$name> for Si {
+            fn from_canonical(canonical: Scalar) -> Scalar {
+                $si_unit::from_canonical(canonical)
+            }
+            fn to_canonical(converted: Scalar) -> Scalar {
+                $si_unit::to_canonical(converted)
+            }
+        }
+
         $(
             measure_conversions!($name, $($converts)*);
         )?
@@ -212,6 +240,7 @@ measure!(
     /// Canonically represented in meters.
     pub Distance {
         canonical: Meters,
+        si: Meters,
 
         /// One millimeter.
         Millimeters: 1000.0 per canonical,
@@ -237,6 +266,7 @@ measure!(
     /// Canonically represented in seconds.
     pub Time {
         canonical: Seconds,
+        si: Seconds,
 
         /// One millionth of a second.
         Microseconds: 1_000_000.0 per canonical,
@@ -258,12 +288,14 @@ measure!(
         Years: per 31536000.0 canonical,
     } where {
         Self * LinearVelocity => Distance in Meters,
+        Self * LinearAcceleration => LinearVelocity in MetersPerSecond,
     }
 );
 
 measure!(
     pub LinearVelocity {
         canonical: MetersPerSecond,
+        si: MetersPerSecond,
 
         MetersPerSecond: 1.0 per canonical,
         KilometersPerHour: per 3.6 canonical,
@@ -277,8 +309,11 @@ measure!(
 measure! {
     pub LinearAcceleration {
         canonical: MetersPerSecondSquared,
+        si: MetersPerSecondSquared,
 
         MetersPerSecondSquared: 1.0 per canonical,
         FeetPerSecondSquared: 3.28084 per canonical,
+    } where {
+        Self * Time => LinearVelocity in MetersPerSecond,
     }
 }
