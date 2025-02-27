@@ -240,3 +240,37 @@ macro_rules! measure {
     };
 }
 pub(crate) use measure;
+
+macro_rules! extension_trait {
+    (
+        $(
+            $func_name:ident => $measure:ident in $unit:ident
+        ),*
+    ) => {
+        pub trait ScalarExt {
+            $(
+                fn $func_name(self) -> $measure;
+            )*
+        }
+        impl ScalarExt for Scalar {
+            $(
+                fn $func_name(self) -> $measure {
+                    $unit::of(self)
+                }
+            )*
+        }
+    };
+}
+
+extension_trait!(
+    // Distance
+    millimeters => Distance in Millimeters,
+    centimeters => Distance in Centimeters,
+    meters => Distance in Meters,
+    kilometers => Distance in Kilometers,
+    inches => Distance in Inches,
+    feet => Distance in Feet,
+
+    // Time
+    seconds => Time in Seconds
+);
