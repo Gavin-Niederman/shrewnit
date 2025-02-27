@@ -241,6 +241,7 @@ macro_rules! measure {
 }
 pub(crate) use measure;
 
+/// A convenient way to implement extension traits for scalars that allows for measure construction.
 macro_rules! extension_trait {
     (
         $(
@@ -272,5 +273,41 @@ extension_trait!(
     feet => Distance in Feet,
 
     // Time
-    seconds => Time in Seconds
+    microseconds => Time in Microseconds,
+    milliseconds => Time in Milliseconds,
+    seconds => Time in Seconds,
+    minutes => Time in Minutes,
+    hours => Time in Hours,
+    days => Time in Days,
+    weeks => Time in Weeks,
+    years => Time in Years,
+
+    // Linear velocity
+    meters_per_second => LinearVelocity in MetersPerSecond,
+    kilometers_per_hour => LinearVelocity in KilometersPerHour,
+    feet_per_second => LinearVelocity in FeetPerSecond,
+    miles_per_hour => LinearVelocity in MilesPerHour,
+
+    // Linear acceleration
+    meters_per_second_squared => LinearAcceleration in MetersPerSecondSquared,
+    feet_per_second_squared => LinearAcceleration in FeetPerSecondSquared,
+
+    // Angle
+    radians => Angle in Radians,
+    rotations => Angle in Rotations,
+    degrees => Angle in Degrees,
+
+    // Angular velocity
+    radians_per_second => AngularVelocity in RadiansPerSecond,
+    rotations_per_second => AngularVelocity in RotationsPerSecond,
+    rotations_per_minute => AngularVelocity in RotationsPerMinute,
+    degrees_per_second => AngularVelocity in DegreesPerSecond,
+
+    // Force
+    newtons => Force in Newtons,
+    pounds => Force in Pounds,
+
+    // Torque
+    newton_meters => Torque in NewtonMeters,
+    foot_pounds => Torque in FootPounds
 );
