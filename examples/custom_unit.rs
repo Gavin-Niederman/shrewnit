@@ -1,14 +1,8 @@
-use shrewnit::{Distance, Feet, Inches, Measure, Scalar, Seconds, UnitOf};
+use shrewnit::{Distance, Feet, Inches, Measure, Scalar, ScalarExt, Seconds, UnitOf};
 
-struct HalfInches;
-impl UnitOf<Distance> for HalfInches {
-    fn to_canonical(converted: Scalar) -> Scalar {
-        Inches::to_canonical(converted) * 2.0
-    }
-    fn from_canonical(canonical: Scalar) -> Scalar {
-        Inches::from_canonical(canonical * 2.0)
-    }
-}
+shrewnit::simple_unit!(
+    pub HalfInches of measure Distance = 78.740158 per canonical
+);
 
 fn main() {
     let distance = 30.0 * Feet;

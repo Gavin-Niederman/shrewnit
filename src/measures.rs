@@ -1,4 +1,4 @@
-use crate::{measure, Measure};
+use crate::measure;
 
 measure!(
     /// Represents a distance.

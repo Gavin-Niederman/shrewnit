@@ -58,6 +58,7 @@ macro_rules! measure_conversions {
         impl core::ops::Mul<$rhs> for $self {
             type Output = $output;
             fn mul(self, rhs: $rhs) -> Self::Output {
+                use $crate::Measure;
                 $output::of::<$output_unit>(self.canonical() * rhs.canonical())
             }
         }
@@ -68,6 +69,7 @@ macro_rules! measure_conversions {
         impl core::ops::Div<$rhs> for $self {
             type Output = $output;
             fn div(self, rhs: $rhs) -> Self::Output {
+                use $crate::Measure;
                 $output::of::<$output_unit>(self.canonical() / rhs.canonical())
             }
         }
@@ -89,18 +91,21 @@ macro_rules! simple_unit {
         impl core::ops::Mul<$crate::Scalar> for $unit {
             type Output = $measure;
             fn mul(self, rhs: $crate::Scalar) -> $measure {
+                use $crate::Measure;
                 $measure::of::<$unit>(rhs)
             }
         }
         impl core::ops::Mul<$unit> for $crate::Scalar {
             type Output = $measure;
             fn mul(self, _rhs: $unit) -> $measure {
+                use $crate::Measure;
                 $measure::of::<$unit>(self)
             }
         }
 
         impl $unit {
             pub fn of(value: $crate::Scalar) -> $measure {
+                use $crate::Measure;
                 $measure::of::<Self>(value)
             }
         }
