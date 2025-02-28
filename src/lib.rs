@@ -7,15 +7,9 @@ pub use measures::*;
 
 pub type Scalar = f64;
 
-mod private {
-    pub trait Sealed {}
-    pub trait MeasureInternal: Sealed {
-        fn canonical(&self) -> super::Scalar;
-        fn from_canonical(value: super::Scalar) -> Self;
-    }
-}
+pub trait Measure {
+    type CanonicalUnit: UnitOf<Self>;
 
-pub trait Measure: private::MeasureInternal {
     fn to<U: UnitOf<Self>>(&self) -> Scalar
     where
         Self: Sized,
@@ -29,8 +23,11 @@ pub trait Measure: private::MeasureInternal {
     {
         Self::from_canonical(U::to_canonical(value))
     }
+
+    fn canonical(&self) -> Scalar;
+    fn from_canonical(value: Scalar) -> Self;
 }
-pub trait UnitOf<M: Measure> {
+pub trait UnitOf<M: Measure + ?Sized> {
     fn from_canonical(canonical: Scalar) -> Scalar;
     fn to_canonical(converted: Scalar) -> Scalar;
 }
@@ -53,6 +50,7 @@ pub trait UnitOf<M: Measure> {
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
 pub struct Si;
 
+#[macro_export]
 macro_rules! measure_conversions {
     {} => {};
     {$self:ty,} => {};
@@ -60,7 +58,6 @@ macro_rules! measure_conversions {
         impl core::ops::Mul<$rhs> for $self {
             type Output = $output;
             fn mul(self, rhs: $rhs) -> Self::Output {
-                use $crate::private::MeasureInternal;
                 $output::of::<$output_unit>(self.canonical() * rhs.canonical())
             }
         }
@@ -71,7 +68,6 @@ macro_rules! measure_conversions {
         impl core::ops::Div<$rhs> for $self {
             type Output = $output;
             fn div(self, rhs: $rhs) -> Self::Output {
-                use $crate::private::MeasureInternal;
                 $output::of::<$output_unit>(self.canonical() / rhs.canonical())
             }
         }
@@ -79,8 +75,8 @@ macro_rules! measure_conversions {
         $crate::measure_conversions!($self, $($rest)*);
     };
 }
-pub(crate) use measure_conversions;
 
+#[macro_export]
 macro_rules! simple_unit {
     (
         $(#[$meta:meta])*
@@ -133,8 +129,8 @@ macro_rules! simple_unit {
         )?
     };
 }
-pub(crate) use simple_unit;
 
+#[macro_export]
 macro_rules! measure {
     (
         $(#[$meta:meta])*
@@ -154,8 +150,9 @@ macro_rules! measure {
         #[derive(Clone, Copy, PartialEq, PartialOrd)]
         $vis struct $name($crate::Scalar);
 
-        impl $crate::private::Sealed for $name {}
-        impl $crate::private::MeasureInternal for $name {
+        impl $crate::Measure for $name {
+            type CanonicalUnit = $canonical_unit;
+
             fn canonical(&self) -> $crate::Scalar {
                 self.0
             }
@@ -163,7 +160,6 @@ macro_rules! measure {
                 Self(value)
             }
         }
-        impl $crate::Measure for $name {}
 
         impl core::fmt::Debug for $name {
             fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -252,27 +248,29 @@ macro_rules! measure {
         )?
     };
 }
-pub(crate) use measure;
 
 /// A convenient way to implement extension traits for scalars that allows for measure construction.
-macro_rules! extension_trait {
+#[macro_export]
+macro_rules! scalar_extension_trait {
     (
-        $(
-            $measure:ident {
-                $(
-                    $func_name:ident => $unit:ident
-                ),*
-            }
-        ),*
+        trait $name:ident {
+            $(
+                $measure:ident {
+                    $(
+                        $func_name:ident => $unit:ident
+                    ),*
+                }
+            ),*
+        }
     ) => {
-        pub trait ScalarExt {
+        pub trait $name {
             $(
                 $(
                     fn $func_name(self) -> $measure;
                 )*
             )*
         }
-        impl ScalarExt for Scalar {
+        impl $name for Scalar {
             $(
                 $(
                     fn $func_name(self) -> $measure {
@@ -284,59 +282,61 @@ macro_rules! extension_trait {
     };
 }
 
-extension_trait!(
-    Distance {
-        millimeters => Millimeters,
-        centimeters => Centimeters,
-        meters => Meters,
-        kilometers => Kilometers,
-        inches => Inches,
-        feet => Feet
-    },
-
-    Time {
-        microseconds => Microseconds,
-        milliseconds => Milliseconds,
-        seconds =>  Seconds,
-        minutes => Minutes,
-        hours => Hours,
-        days => Days,
-        weeks => Weeks,
-        years => Years
-    },
-
-    LinearVelocity {
-        meters_per_second => MetersPerSecond,
-        kilometers_per_hour => KilometersPerHour,
-        feet_per_second => FeetPerSecond,
-        miles_per_hour => MilesPerHour
-    },
-
-    LinearAcceleration {
-        meters_per_second_squared => MetersPerSecondSquared,
-        feet_per_second_squared => FeetPerSecondSquared
-    },
-
-    Angle {
-        radians => Radians,
-        rotations => Rotations,
-        degrees => Degrees
-    },
-
-    AngularVelocity {
-        radians_per_second => RadiansPerSecond,
-        rotations_per_second => RotationsPerSecond,
-        rotations_per_minute => RotationsPerMinute,
-        degrees_per_second => DegreesPerSecond
-    },
-
-    Force {
-        newtons => Newtons,
-        pounds => Pounds
-    },
-
-    Torque {
-        newton_meters => NewtonMeters,
-        foot_pounds => FootPounds
+scalar_extension_trait!(
+    trait ScalarExt {
+        Distance {
+            millimeters => Millimeters,
+            centimeters => Centimeters,
+            meters => Meters,
+            kilometers => Kilometers,
+            inches => Inches,
+            feet => Feet
+        },
+    
+        Time {
+            microseconds => Microseconds,
+            milliseconds => Milliseconds,
+            seconds =>  Seconds,
+            minutes => Minutes,
+            hours => Hours,
+            days => Days,
+            weeks => Weeks,
+            years => Years
+        },
+    
+        LinearVelocity {
+            meters_per_second => MetersPerSecond,
+            kilometers_per_hour => KilometersPerHour,
+            feet_per_second => FeetPerSecond,
+            miles_per_hour => MilesPerHour
+        },
+    
+        LinearAcceleration {
+            meters_per_second_squared => MetersPerSecondSquared,
+            feet_per_second_squared => FeetPerSecondSquared
+        },
+    
+        Angle {
+            radians => Radians,
+            rotations => Rotations,
+            degrees => Degrees
+        },
+    
+        AngularVelocity {
+            radians_per_second => RadiansPerSecond,
+            rotations_per_second => RotationsPerSecond,
+            rotations_per_minute => RotationsPerMinute,
+            degrees_per_second => DegreesPerSecond
+        },
+    
+        Force {
+            newtons => Newtons,
+            pounds => Pounds
+        },
+    
+        Torque {
+            newton_meters => NewtonMeters,
+            foot_pounds => FootPounds
+        }
     }
 );
