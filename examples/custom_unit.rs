@@ -1,4 +1,4 @@
-use shrewnit::{Distance, Feet, Inches, Measure, Scalar, ScalarExt, Seconds, UnitOf};
+use shrewnit::{Distance, Feet, Measure, Seconds};
 
 shrewnit::simple_unit!(
     pub HalfInches of measure Distance = 78.740158 per canonical

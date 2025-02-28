@@ -232,7 +232,7 @@ macro_rules! measure {
 
         $(
             $crate::simple_unit!(
-                $(#[$unit_meta])* 
+                $(#[$unit_meta])*
                 $vis $unit of measure $name = $($rhsper per canonical)? $(per $lhsper canonical)?
             );
         )*
@@ -297,7 +297,7 @@ scalar_extension_trait!(
             inches => Inches,
             feet => Feet
         },
-    
+
         Time {
             microseconds => Microseconds,
             milliseconds => Milliseconds,
@@ -308,37 +308,37 @@ scalar_extension_trait!(
             weeks => Weeks,
             years => Years
         },
-    
+
         LinearVelocity {
             meters_per_second => MetersPerSecond,
             kilometers_per_hour => KilometersPerHour,
             feet_per_second => FeetPerSecond,
             miles_per_hour => MilesPerHour
         },
-    
+
         LinearAcceleration {
             meters_per_second_squared => MetersPerSecondSquared,
             feet_per_second_squared => FeetPerSecondSquared
         },
-    
+
         Angle {
             radians => Radians,
             rotations => Rotations,
             degrees => Degrees
         },
-    
+
         AngularVelocity {
             radians_per_second => RadiansPerSecond,
             rotations_per_second => RotationsPerSecond,
             rotations_per_minute => RotationsPerMinute,
             degrees_per_second => DegreesPerSecond
         },
-    
+
         Force {
             newtons => Newtons,
             pounds => Pounds
         },
-    
+
         Torque {
             newton_meters => NewtonMeters,
             foot_pounds => FootPounds
