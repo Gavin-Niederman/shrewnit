@@ -51,7 +51,8 @@ pub trait UnitOf<M: Measure + ?Sized> {
 pub struct Si;
 
 #[macro_export]
-macro_rules! measure_conversions {
+#[doc(hidden)]
+macro_rules! __measure_conversions {
     {} => {};
     {$self:ty,} => {};
     ($self:ty, Self * $rhs:ty => $output:ident in $output_unit:ty, $($rest:tt)*) => {
@@ -63,7 +64,7 @@ macro_rules! measure_conversions {
             }
         }
 
-        $crate::measure_conversions!($self, $($rest)*);
+        $crate::__measure_conversions!($self, $($rest)*);
     };
     ($self:ty, Self / $rhs:ty => $output:ident in $output_unit:ty, $($rest:tt)*) => {
         impl core::ops::Div<$rhs> for $self {
@@ -74,7 +75,7 @@ macro_rules! measure_conversions {
             }
         }
 
-        $crate::measure_conversions!($self, $($rest)*);
+        $crate::__measure_conversions!($self, $($rest)*);
     };
 }
 
@@ -249,7 +250,7 @@ macro_rules! measure {
         )?
 
         $(
-            $crate::measure_conversions!($name, $($converts)*);
+            $crate::__measure_conversions!($name, $($converts)*);
         )?
     };
 }
