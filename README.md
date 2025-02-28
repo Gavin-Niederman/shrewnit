@@ -18,6 +18,8 @@ Multiplication with unit type:
 
 ```rust
 let distance = 1.0 * Inches;
+
+let distance = Inches * 1.0;
 ```
 
 Unit type method:
