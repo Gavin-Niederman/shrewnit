@@ -36,16 +36,16 @@ pub trait UnitOf<M: Measure> {
 }
 
 /// Represents the standard SI unit of any measure.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```
 /// use shrewnit::Measure;
-/// 
+///
 /// let velocity = 30.0 * shrewnit::MetersPerSecond;
 /// let distance = 100.0 * shrewnit::Meters;
 /// let time = 3.0 * shrewnit::Seconds;
-/// 
+///
 /// println!("{}", velocity.to::<shrewnit::Si>());
 /// println!("{}", distance.to::<shrewnit::Si>());
 /// println!("{}", time.to::<shrewnit::Si>());
@@ -80,6 +80,60 @@ macro_rules! measure_conversions {
     };
 }
 pub(crate) use measure_conversions;
+
+macro_rules! simple_unit {
+    (
+        $(#[$meta:meta])*
+        $vis:vis $unit:ident of measure $measure:ident = $($rhsper:literal per canonical)? $(per $lhsper:literal canonical)?
+    ) => {
+        $(#[$meta])*
+        #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
+        $vis struct $unit;
+
+        impl core::ops::Mul<$crate::Scalar> for $unit {
+            type Output = $measure;
+            fn mul(self, rhs: $crate::Scalar) -> $measure {
+                $measure::of::<$unit>(rhs)
+            }
+        }
+        impl core::ops::Mul<$unit> for $crate::Scalar {
+            type Output = $measure;
+            fn mul(self, _rhs: $unit) -> $measure {
+                $measure::of::<$unit>(self)
+            }
+        }
+
+        impl $unit {
+            pub fn of(value: $crate::Scalar) -> $measure {
+                $measure::of::<Self>(value)
+            }
+        }
+
+        $(
+            impl $crate::UnitOf<$measure> for $unit {
+                // $conversion = ratio of $unit to canonical unit
+                fn from_canonical(canonical: $crate::Scalar) -> $crate::Scalar {
+                    canonical * $rhsper
+                }
+                fn to_canonical(converted: $crate::Scalar) -> $crate::Scalar {
+                    converted / $rhsper
+                }
+            }
+        )?
+        $(
+            impl $crate::UnitOf<$measure> for $unit {
+                // $conversion = ratio of $unit to canonical unit
+                fn from_canonical(canonical: $crate::Scalar) -> $crate::Scalar {
+                    canonical / $lhsper
+                }
+                fn to_canonical(converted: $crate::Scalar) -> $crate::Scalar {
+                    converted * $lhsper
+                }
+            }
+        )?
+    };
+}
+pub(crate) use simple_unit;
 
 macro_rules! measure {
     (
@@ -176,51 +230,10 @@ macro_rules! measure {
         }
 
         $(
-            $(#[$unit_meta])*
-            #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
-            $vis struct $unit;
-
-            impl core::ops::Mul<$crate::Scalar> for $unit {
-                type Output = $name;
-                fn mul(self, rhs: $crate::Scalar) -> $name {
-                    $name::of::<$unit>(rhs)
-                }
-            }
-            impl core::ops::Mul<$unit> for $crate::Scalar {
-                type Output = $name;
-                fn mul(self, _rhs: $unit) -> $name {
-                    $name::of::<$unit>(self)
-                }
-            }
-
-            impl $unit {
-                pub fn of(value: $crate::Scalar) -> $name {
-                    $name::of::<Self>(value)
-                }
-            }
-
-            $(
-                impl $crate::UnitOf<$name> for $unit {
-                    // $conversion = ratio of $unit to canonical unit
-                    fn from_canonical(canonical: $crate::Scalar) -> $crate::Scalar {
-                        canonical * $rhsper
-                    }
-                    fn to_canonical(converted: $crate::Scalar) -> $crate::Scalar {
-                        converted / $rhsper
-                    }
-                }
-            )?
-            $(
-                impl $crate::UnitOf<$name> for $unit {
-                    // $conversion = ratio of $unit to canonical unit
-                    fn from_canonical(canonical: $crate::Scalar) -> $crate::Scalar {
-                        canonical / $lhsper
-                    }
-                    fn to_canonical(converted: $crate::Scalar) -> $crate::Scalar {
-                        converted * $lhsper
-                    }
-                }
-            )?
+            $crate::simple_unit!(
+                $(#[$unit_meta])* 
+                $vis $unit of measure $name = $($rhsper per canonical)? $(per $lhsper canonical)?
+            );
         )*
 
         $(
@@ -245,69 +258,85 @@ pub(crate) use measure;
 macro_rules! extension_trait {
     (
         $(
-            $func_name:ident => $measure:ident in $unit:ident
+            $measure:ident {
+                $(
+                    $func_name:ident => $unit:ident
+                ),*
+            }
         ),*
     ) => {
         pub trait ScalarExt {
             $(
-                fn $func_name(self) -> $measure;
+                $(
+                    fn $func_name(self) -> $measure;
+                )*
             )*
         }
         impl ScalarExt for Scalar {
             $(
-                fn $func_name(self) -> $measure {
-                    $unit::of(self)
-                }
+                $(
+                    fn $func_name(self) -> $measure {
+                        $unit::of(self)
+                    }
+                )*
             )*
         }
     };
 }
 
 extension_trait!(
-    // Distance
-    millimeters => Distance in Millimeters,
-    centimeters => Distance in Centimeters,
-    meters => Distance in Meters,
-    kilometers => Distance in Kilometers,
-    inches => Distance in Inches,
-    feet => Distance in Feet,
+    Distance {
+        millimeters => Millimeters,
+        centimeters => Centimeters,
+        meters => Meters,
+        kilometers => Kilometers,
+        inches => Inches,
+        feet => Feet
+    },
 
-    // Time
-    microseconds => Time in Microseconds,
-    milliseconds => Time in Milliseconds,
-    seconds => Time in Seconds,
-    minutes => Time in Minutes,
-    hours => Time in Hours,
-    days => Time in Days,
-    weeks => Time in Weeks,
-    years => Time in Years,
+    Time {
+        microseconds => Microseconds,
+        milliseconds => Milliseconds,
+        seconds =>  Seconds,
+        minutes => Minutes,
+        hours => Hours,
+        days => Days,
+        weeks => Weeks,
+        years => Years
+    },
 
-    // Linear velocity
-    meters_per_second => LinearVelocity in MetersPerSecond,
-    kilometers_per_hour => LinearVelocity in KilometersPerHour,
-    feet_per_second => LinearVelocity in FeetPerSecond,
-    miles_per_hour => LinearVelocity in MilesPerHour,
+    LinearVelocity {
+        meters_per_second => MetersPerSecond,
+        kilometers_per_hour => KilometersPerHour,
+        feet_per_second => FeetPerSecond,
+        miles_per_hour => MilesPerHour
+    },
 
-    // Linear acceleration
-    meters_per_second_squared => LinearAcceleration in MetersPerSecondSquared,
-    feet_per_second_squared => LinearAcceleration in FeetPerSecondSquared,
+    LinearAcceleration {
+        meters_per_second_squared => MetersPerSecondSquared,
+        feet_per_second_squared => FeetPerSecondSquared
+    },
 
-    // Angle
-    radians => Angle in Radians,
-    rotations => Angle in Rotations,
-    degrees => Angle in Degrees,
+    Angle {
+        radians => Radians,
+        rotations => Rotations,
+        degrees => Degrees
+    },
 
-    // Angular velocity
-    radians_per_second => AngularVelocity in RadiansPerSecond,
-    rotations_per_second => AngularVelocity in RotationsPerSecond,
-    rotations_per_minute => AngularVelocity in RotationsPerMinute,
-    degrees_per_second => AngularVelocity in DegreesPerSecond,
+    AngularVelocity {
+        radians_per_second => RadiansPerSecond,
+        rotations_per_second => RotationsPerSecond,
+        rotations_per_minute => RotationsPerMinute,
+        degrees_per_second => DegreesPerSecond
+    },
 
-    // Force
-    newtons => Force in Newtons,
-    pounds => Force in Pounds,
+    Force {
+        newtons => Newtons,
+        pounds => Pounds
+    },
 
-    // Torque
-    newton_meters => Torque in NewtonMeters,
-    foot_pounds => Torque in FootPounds
+    Torque {
+        newton_meters => NewtonMeters,
+        foot_pounds => FootPounds
+    }
 );

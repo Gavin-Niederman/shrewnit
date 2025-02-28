@@ -18,9 +18,9 @@ measure!(
         Kilometers: per 1000.0 canonical,
 
         /// One inch.
-        Inches: 39.3701 per canonical,
+        Inches: 39.370079 per canonical,
         /// One foot.
-        Feet: 3.28084 per canonical,
+        Feet: 3.2808399 per canonical,
     } where {
         Self / Time => LinearVelocity in MetersPerSecond,
         Self * Force => Torque in NewtonMeters,
@@ -48,11 +48,11 @@ measure!(
         Hours: per 3600.0 canonical,
 
         /// 86400 seconds.
-        Days: per 86400.0 canonical,
+        Days: per 86_400.0 canonical,
         /// 604800 seconds.
-        Weeks: per 604800.0 canonical,
+        Weeks: per 604_800.0 canonical,
         /// 31536000 seconds.
-        Years: per 31536000.0 canonical,
+        Years: per 31_556_926.0 canonical,
     } where {
         Self * LinearVelocity => Distance in Meters,
         Self * LinearAcceleration => LinearVelocity in MetersPerSecond,
@@ -65,9 +65,9 @@ measure!(
         canonical: MetersPerSecond,
 
         MetersPerSecond: 1.0 per canonical,
-        KilometersPerHour: per 3.6 canonical,
-        FeetPerSecond: 3.28084 per canonical,
-        MilesPerHour: 2.23693629 per canonical,
+        KilometersPerHour: 3.6 per canonical,
+        FeetPerSecond: 3.2808399 per canonical,
+        MilesPerHour: 2.2369363 per canonical,
     } where {
         Self * Time => Distance in Meters,
         Self / Time => LinearAcceleration in MetersPerSecondSquared,
@@ -79,7 +79,7 @@ measure! {
         canonical: MetersPerSecondSquared,
 
         MetersPerSecondSquared: 1.0 per canonical,
-        FeetPerSecondSquared: 3.28084 per canonical,
+        FeetPerSecondSquared: 3.2808399 per canonical,
     } where {
         Self * Time => LinearVelocity in MetersPerSecond,
     }
@@ -91,8 +91,8 @@ measure!(
         canonical: Radians,
 
         Radians: 1.0 per canonical,
-        Rotations: per 6.283185307179586 canonical,
-        Degrees: 57.29577951308232 per canonical,
+        Rotations: per 6.2831853 canonical,
+        Degrees: 57.29578 per canonical,
     } where {
         Self / Time => AngularVelocity in RadiansPerSecond,
     }
@@ -103,9 +103,9 @@ measure!(
         canonical: RadiansPerSecond,
 
         RadiansPerSecond: 1.0 per canonical,
-        RotationsPerSecond: per 6.283185307179586 canonical,
-        RotationsPerMinute: 9.549296585513721 per canonical,
-        DegreesPerSecond: 57.29577951308232 per canonical,
+        RotationsPerSecond: per 6.2831853 canonical,
+        RotationsPerMinute: 9.5492966 per canonical,
+        DegreesPerSecond: 57.29578 per canonical,
     } where {
         Self * Time => Angle in Radians,
     }
@@ -117,7 +117,7 @@ measure!(
         canonical: Newtons,
 
         Newtons: 1.0 per canonical,
-        Pounds: 0.224808943112876 per canonical,
+        Pounds: 4.4482216 per canonical,
     } where {
         Self * Distance => Torque in NewtonMeters,
     }
@@ -129,7 +129,7 @@ measure!(
         canonical: NewtonMeters,
 
         NewtonMeters: 1.0 per canonical,
-        FootPounds: 0.737562 per canonical,
+        FootPounds: per 1.3558179 canonical,
     } where {
         Self / Distance => Force in Newtons,
         Self / Force => Distance in Meters,
