@@ -32,7 +32,8 @@ let distance = 1.0.inches();
 
 ## Unit Math
 
-Quantities can be multiplied and divided with un-united scalars, but not with added or subtracted.
+Quantities can be multiplied and divided by un-united scalars, 
+but not added or subtracted by un-united scalars.
 
 ```rust
 let mut quantity = 1.0 * Seconds * 2.0;
