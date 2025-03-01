@@ -31,6 +31,7 @@ impl<
 pub trait Measure<S: Scalar = f64> {
     type CanonicalUnit: UnitOf<S, Self>;
 
+    #[inline]
     fn to<U: UnitOf<S, Self>>(&self) -> S
     where
         Self: Sized,
@@ -38,6 +39,7 @@ pub trait Measure<S: Scalar = f64> {
         U::from_canonical(self.canonical())
     }
 
+    #[inline]
     fn of<U: UnitOf<S, Self>>(value: S) -> Self
     where
         Self: Sized,
@@ -133,9 +135,27 @@ macro_rules! simple_unit {
             }
         }
 
-        $crate::__unit_mult_imp!($unit, $measure, f64, f32, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128);
+        $crate::__unit_mult_imp!(
+            $unit,
+            $measure, 
+            f64, 
+            f32, 
+            i8, 
+            i16, 
+            i32, 
+            i64, 
+            i128, 
+            isize, 
+            u8, 
+            u16, 
+            u32, 
+            u64, 
+            u128, 
+            usize
+        );
 
         impl $unit {
+            #[inline]
             pub fn of<S: $crate::Scalar>(value: S) -> $measure<S> {
                 use $crate::Measure;
                 $measure::of::<Self>(value)
@@ -144,10 +164,11 @@ macro_rules! simple_unit {
 
         $(
             impl<S: $crate::Scalar> $crate::UnitOf<S, $measure<S>> for $unit {
-                // $conversion = ratio of $unit to canonical unit
+                #[inline]
                 fn from_canonical(canonical: S) -> S {
                     canonical * S::from_f64($rhsper).unwrap()
                 }
+                #[inline]
                 fn to_canonical(converted: S) -> S {
                     converted / S::from_f64($rhsper).unwrap()
                 }
@@ -155,10 +176,11 @@ macro_rules! simple_unit {
         )?
         $(
             impl<S: $crate::Scalar> $crate::UnitOf<S, $measure<S>> for $unit {
-                // $conversion = ratio of $unit to canonical unit
+                #[inline]
                 fn from_canonical(canonical: S) -> S {
                     canonical /  S::from_f64($lhsper).unwrap()
                 }
+                #[inline]
                 fn to_canonical(converted: S) -> S {
                     converted *  S::from_f64($lhsper).unwrap()
                 }
@@ -190,9 +212,11 @@ macro_rules! measure {
         impl<S: $crate::Scalar> $crate::Measure<S> for $name<S> {
             type CanonicalUnit = $canonical_unit;
 
+            #[inline]
             fn canonical(&self) -> S {
                 self.0.clone()
             }
+            #[inline]
             fn from_canonical(value: S) -> Self {
                 Self(value)
             }
@@ -260,9 +284,11 @@ macro_rules! measure {
 
         $(
             impl<S: $crate::Scalar> $crate::UnitOf<S, $name<S>> for $crate::Si {
+                #[inline]
                 fn from_canonical(canonical: S) -> S {
                     $si_unit::from_canonical(canonical)
                 }
+                #[inline]
                 fn to_canonical(converted: S) -> S {
                     $si_unit::to_canonical(converted)
                 }
@@ -299,6 +325,7 @@ macro_rules! scalar_extension_trait {
         impl<S: $crate::Scalar> $name<S> for S {
             $(
                 $(
+                    #[inline]
                     fn $func_name(self) -> $measure<S> {
                         $unit::of(self)
                     }
