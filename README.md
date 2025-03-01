@@ -155,4 +155,5 @@ The name is inspired by the etrsucan shrew, the worlds smallest mammal.
 
 > Does this library have any dependencies?
 
-No, this library has 0 dependencies and is 100% Rust! It does not include any floating point operations that require libm either. This should make it as easy as possible to build.
+Yes, this library depends on one crate: `num-traits`.
+Despite this, Shrewnit is 100% Rust, `no_std`, libm, and alloc free!

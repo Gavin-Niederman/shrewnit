@@ -5,7 +5,7 @@ shrewnit::simple_unit!(
 );
 
 fn main() {
-    let distance = 30.0 * Feet;
+    let distance = 30.0f64 * Feet;
     let time = 3.5 * Seconds;
 
     let average_velocity = distance / time;
