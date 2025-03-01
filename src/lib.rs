@@ -66,15 +66,17 @@
 //!
 //! ## Custom Units and Measures
 //!
-//! Advanced users may want to add custom units to a measure, or entirely new measures.
+//! Advanced users may want to add custom units to a dimension, or entirely new measures.
 //!
 //! ### Custom measures
 //!
-//! Use the `dimension!` macro to create new measures. If you need more example usages, this is the macro used internally by Shrewnit to create all measure and unit types.
+//! Use the `dimension!` macro to create new measures.
+//! If you need more example usages,
+//! this is the macro used internally by Shrewnit to create all dimension and unit types.
 //!
 //! ```no_run
 //! shrewnit::dimension!(
-//!     /// Your custom measure type
+//!     /// Your custom dimension type
 //!     pub MyCustomMeasure {
 //!         // Shrewnit uses standard SI units as canonical units. This isn't required. Do whatever you feel like.
 //!         canonical: MyStandardSiUnit,
@@ -87,13 +89,13 @@
 //!         MyDoubleUnit: per 2.0 canonical,
 //!     } where {
 //!         // Optional operations block.
-//!         // Self </ or *> <other or same measure type> => <output measure type> in <output units>
+//!         // Self </ or *> <other or same dimension type> => <output dimension type> in <output units>
 //!         Self / SomeOtherMeasure => ACompletelyDifferentMeasure in SomeUnit,
 //!     }
 //! );
 //! ```
 //!
-//! This will create the measure type, the unit types, and any necessary implementations.
+//! This will create the dimension type, the unit types, and any necessary implementations.
 //!
 //! ### Custom Units
 //!
@@ -123,10 +125,13 @@
 //! );
 //! ```
 //!
-//! The conversions will be in terms of the measure's canonical unit. The canonical unit for all Shrewnit measures are the standard SI unit. If you do not know what this is, go to the definition of the measure. The canonical unit is the one marked with `canonical: <unit>`.
+//! The conversions will be in terms of the dimension's canonical unit. 
+//! The canonical unit for all Shrewnit measures are the standard SI unit. 
+//! If you do not know what this is, go to the definition of the dimension. 
+//! The canonical unit is the one marked with `canonical: <unit>`.
 //!
 //! ```no_run
-//! measure!(
+//! dimension!(
 //!     pub Torque {
 //!         si: NewtonMeters,
 //!         // This is our canonical unit.
@@ -196,7 +201,7 @@ impl<
 pub trait Dimension<S: Scalar = f64> {
     type CanonicalUnit: UnitOf<S, Self>;
 
-    /// Converts the measure to the given unit.
+    /// Converts the dimension to the given unit.
     #[inline]
     fn to<U: UnitOf<S, Self>>(&self) -> S
     where
@@ -205,7 +210,7 @@ pub trait Dimension<S: Scalar = f64> {
         U::from_canonical(self.canonical())
     }
 
-    /// Creates a new measure from the given scalar and unit.
+    /// Creates a new dimension from the given scalar and unit.
     ///
     /// # Note
     ///
@@ -225,16 +230,16 @@ pub trait Dimension<S: Scalar = f64> {
         Self::from_canonical(U::to_canonical(value))
     }
 
-    /// Returns the canonical representation of the measure.
+    /// Returns the canonical representation of the dimension.
     fn canonical(&self) -> S;
-    /// Creates a new measure from the canonical representation.
+    /// Creates a new dimension from the canonical representation.
     fn from_canonical(value: S) -> Self;
 }
 
 #[macro_export]
 macro_rules! to {
-    ($measure:ident in $unit:ty) => {
-        $measure.to::<$unit>()
+    ($dimension:ident in $unit:ty) => {
+        $dimension.to::<$unit>()
     };
 }
 
@@ -245,7 +250,7 @@ pub trait UnitOf<S: Scalar, M: Dimension<S> + ?Sized> {
     fn to_canonical(converted: S) -> S;
 }
 
-/// Represents the standard SI unit of any measure.
+/// Represents the standard SI unit of any dimension.
 ///
 /// # Examples
 ///
@@ -295,13 +300,13 @@ macro_rules! __measure_conversions {
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __unit_mult_imp {
-    ($unit:ident, $measure:ident, $($rhs:ident),*) => {
+    ($unit:ident, $dimension:ident, $($rhs:ident),*) => {
         $(
             impl core::ops::Mul<$unit> for $rhs {
-                type Output = $measure<$rhs>;
-                fn mul(self, _rhs: $unit) -> $measure<$rhs> {
+                type Output = $dimension<$rhs>;
+                fn mul(self, _rhs: $unit) -> $dimension<$rhs> {
                     use $crate::Dimension;
-                    $measure::from_scalar::<$unit>(self)
+                    $dimension::from_scalar::<$unit>(self)
                 }
             }
         )*
@@ -311,23 +316,23 @@ macro_rules! __unit_mult_imp {
 macro_rules! simple_unit {
     (
         $(#[$meta:meta])*
-        $vis:vis $unit:ident of dimension $measure:ident = $($rhsper:literal per canonical)? $(per $lhsper:literal canonical)?
+        $vis:vis $unit:ident of dimension $dimension:ident = $($rhsper:literal per canonical)? $(per $lhsper:literal canonical)?
     ) => {
         $(#[$meta])*
         #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
         $vis struct $unit;
 
         impl<S: $crate::Scalar> core::ops::Mul<S> for $unit {
-            type Output = $measure<S>;
-            fn mul(self, rhs: S) -> $measure<S> {
+            type Output = $dimension<S>;
+            fn mul(self, rhs: S) -> $dimension<S> {
                 use $crate::Dimension;
-                $measure::from_scalar::<$unit>(rhs)
+                $dimension::from_scalar::<$unit>(rhs)
             }
         }
 
         $crate::__unit_mult_imp!(
             $unit,
-            $measure,
+            $dimension,
             f64,
             f32,
             i8,
@@ -346,14 +351,14 @@ macro_rules! simple_unit {
 
         impl $unit {
             #[inline]
-            pub fn from_scalar<S: $crate::Scalar>(value: S) -> $measure<S> {
+            pub fn from_scalar<S: $crate::Scalar>(value: S) -> $dimension<S> {
                 use $crate::Dimension;
-                $measure::from_scalar::<Self>(value)
+                $dimension::from_scalar::<Self>(value)
             }
         }
 
         $(
-            impl<S: $crate::Scalar> $crate::UnitOf<S, $measure<S>> for $unit {
+            impl<S: $crate::Scalar> $crate::UnitOf<S, $dimension<S>> for $unit {
                 #[inline]
                 fn from_canonical(canonical: S) -> S {
                     canonical * S::from_f64($rhsper).unwrap()
@@ -365,7 +370,7 @@ macro_rules! simple_unit {
             }
         )?
         $(
-            impl<S: $crate::Scalar> $crate::UnitOf<S, $measure<S>> for $unit {
+            impl<S: $crate::Scalar> $crate::UnitOf<S, $dimension<S>> for $unit {
                 #[inline]
                 fn from_canonical(canonical: S) -> S {
                     canonical /  S::from_f64($lhsper).unwrap()
@@ -491,13 +496,13 @@ macro_rules! dimension {
     };
 }
 
-/// A convenient way to implement extension traits for scalars that allows for measure construction.
+/// A convenient way to implement extension traits for scalars that allows for quantity construction.
 #[macro_export]
 macro_rules! scalar_extension_trait {
     (
         trait $name:ident {
             $(
-                $measure:ident {
+                $dimension:ident {
                     $(
                         $func_name:ident => $unit:ident
                     ),*
@@ -508,7 +513,7 @@ macro_rules! scalar_extension_trait {
         pub trait $name<S: $crate::Scalar> {
             $(
                 $(
-                    fn $func_name(self) -> $measure<S>;
+                    fn $func_name(self) -> $dimension<S>;
                 )*
             )*
         }
@@ -516,7 +521,7 @@ macro_rules! scalar_extension_trait {
             $(
                 $(
                     #[inline]
-                    fn $func_name(self) -> $measure<S> {
+                    fn $func_name(self) -> $dimension<S> {
                         $unit::from_scalar(self)
                     }
                 )*

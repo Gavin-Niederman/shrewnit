@@ -1,4 +1,4 @@
-//! Default measure implementations
+//! Default dimension implementations
 //! 
 //! Currently implemented:
 //! 
