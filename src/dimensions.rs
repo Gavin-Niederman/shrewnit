@@ -181,19 +181,22 @@ dimension!(
     pub Mass {
         canonical: Kilograms,
 
-        /// Represents the metric tonne unit.
-        Tonnes: per 1000.0 canonical,
         Kilograms: 1.0 per canonical,
         Grams: 1_000.0 per canonical,
         Milligrams: 1_000_000.0 per canonical,
         Micrograms: 1_000_000_000.0 per canonical,
-
+        
         Pounds: 2.2046226 per canonical,
         /// Represents the ounces unit of mass.
         Ounces: 35.273962 per canonical,
-        /// Represents imperial ton unit.
-        Tons: per 907.18474 canonical,
         Stones: per 6.3502932 canonical,
+
+        /// Represents the tonne unit. Defined as one megagram.
+        MetricTons: per 1000.0 canonical,
+        /// Represents the American (short) ton. Defined as 2000 pounds.
+        ShortTons: per 907.18474 canonical,
+        /// Represents the British (long) ton. Defined as 2240 pounds.
+        LongTons: per 1016.0469 canonical,
     } where {
         Self * LinearAcceleration => Force in Newtons,
     }

@@ -591,8 +591,9 @@ scalar_extension_trait!(
             ounces => Ounces,
             stones => Stones,
 
-            tonnes => Tonnes,
-            tons => Tons
+            metric_tons => MetricTons,
+            short_tons => ShortTons,
+            long_tons => LongTons
         },
 
         Force {
