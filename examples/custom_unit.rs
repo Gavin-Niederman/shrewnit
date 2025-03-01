@@ -1,7 +1,7 @@
-use shrewnit::{Distance, Feet, Measure, Seconds};
+use shrewnit::{to, Length, Feet, Dimension, Seconds};
 
 shrewnit::simple_unit!(
-    pub HalfInches of measure Distance = 78.740158 per canonical
+    pub HalfInches of dimension Length = 78.740158 per canonical
 );
 
 fn main() {
@@ -13,6 +13,6 @@ fn main() {
 
     println!("{:?} {:?}", average_velocity, acceleration);
 
-    let half_inches = distance.to::<HalfInches>();
+    let half_inches = to!(distance in HalfInches);
     println!("{:?}", half_inches);
 }

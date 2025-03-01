@@ -1,15 +1,176 @@
-#![doc = include_str!("../README.md")]
+//! 100% stable and `no_std` Rust units library with support for custom units and dimensions.
+//!
+//! # Usage
+//!
+//! Shrewnit is a type-per-dimension units library, meaning every dimension gets its own type.
+//! Each unit has its own type as well, but they are only used for conversions and initialization.
+//!
+//! ## Creating Quantities
+//!
+//! Quantities can be created in two ways: multiplication and `ScalarExt`.
+//! Multiplication is techinically more correct (quantities are defined as the product of a scalar and a unit),
+//! but some may find `ScalarExt` easier to read.
+//!
+//! Multiplication with unit type:
+//!
+//! ```rust
+//! # use shrewnit::Inches;
+//!
+//! let distance = 1.0 * Inches;
+//!
+//! let distance = Inches * 1.0;
+//! ```
+//!
+//! `ScalarExt`:
+//!
+//! ```rust
+//! # use shrewnit::ScalarExt;
+//! 
+//! let distance = 1.0.inches();
+//! ```
+//!
+//! ## Unit Math
+//!
+//! Quantities can be multiplied and divided with un-united scalars, but not added or subtracted.
+//!
+//! ```rust
+//! # use shrewnit::Seconds;
+//!
+//! let mut quantity = 1.0 * Seconds * 2.0;
+//! quantity /= 4.0;
+//! ```
+//!
+//! Additional operations are supported depending on the dimension of the quantity.
+//! For example, multiplying a `LinearVelocity` with a `Time` will result in a `Distance`.
+//!
+//! ```rust
+//! # use shrewnit::{Seconds, MilesPerHour};
+//!
+//! let time = 5.0 * Seconds;
+//! let change_in_velocity = 60.0 * MilesPerHour;
+//!
+//! let acceleration = change_in_velocity / time;
+//! ```
+//!
+//! ## Accessing the Value
+//!
+//! To get the value of a quantity, use the `Dimension` trait's `to` function.
+//!
+//! ```rust
+//! use shrewnit::{Dimension, Minutes, Seconds};
+//!
+//! let time = 5.0f32 * Seconds;
+//!
+//! println!("{}", time.to::<Minutes>());
+//! ```
+//!
+//! ## Custom Units and Measures
+//!
+//! Advanced users may want to add custom units to a measure, or entirely new measures.
+//!
+//! ### Custom measures
+//!
+//! Use the `dimension!` macro to create new measures. If you need more example usages, this is the macro used internally by Shrewnit to create all measure and unit types.
+//!
+//! ```no_run
+//! shrewnit::dimension!(
+//!     /// Your custom measure type
+//!     pub MyCustomMeasure {
+//!         // Shrewnit uses standard SI units as canonical units. This isn't required. Do whatever you feel like.
+//!         canonical: MyStandardSiUnit,
+//!
+//!         // Conversion can be read as "one MyStandardSiUnit per canonical unit"
+//!         MyStandardSiUnit: 1.0 per canonical,
+//!         // Conversion can be read as "two MyHalfUnits per canonical unit"
+//!         MyHalfUnit: 2.0 per canonical,
+//!         // Conversion can be read as "one MyDoubleUnits per two canonical units"
+//!         MyDoubleUnit: per 2.0 canonical,
+//!     } where {
+//!         // Optional operations block.
+//!         // Self </ or *> <other or same measure type> => <output measure type> in <output units>
+//!         Self / SomeOtherMeasure => ACompletelyDifferentMeasure in SomeUnit,
+//!     }
+//! );
+//! ```
+//!
+//! This will create the measure type, the unit types, and any necessary implementations.
+//!
+//! ### Custom Units
+//!
+//! Custom units for existing measures can be created by manually implementing the `UnifOf` trait for a type.
+//!
+//! ```rust
+//! use shrewnit::{Scalar, Length, UnitOf};
+//!
+//! struct MyCustomUnitOfLength;
+//! impl<S: Scalar> UnitOf<S, Length<S>> for MyCustomUnitOfLength {
+//!     fn to_canonical(converted: S) -> S {
+//!         converted / S::from_f64(2.0).unwrap()
+//!     }
+//!     fn from_canonical(canonical: S) -> S {
+//!         canonical * S::from_f64(2.0).unwrap()
+//!     }
+//! }
+//! ```
+//!
+//! You can also use the `simple_unit!` macro in order to streamline simple conversions like this.
+//!
+//! ```rust
+//! use shrewnit::Length;
+//!
+//! shrewnit::simple_unit!(
+//!     pub MyCustomUnitOfDistance of dimension Length = per 2.0 canonical
+//! );
+//! ```
+//!
+//! The conversions will be in terms of the measure's canonical unit. The canonical unit for all Shrewnit measures are the standard SI unit. If you do not know what this is, go to the definition of the measure. The canonical unit is the one marked with `canonical: <unit>`.
+//!
+//! ```no_run
+//! measure!(
+//!     pub Torque {
+//!         si: NewtonMeters,
+//!         // This is our canonical unit.
+//!         canonical: NewtonMeters,
+//! ...
+//! ```
+//!
+//! You can also base your unit conversions off of existing units. Unfortunately, you cannot do this using `simple_unit!`.
+//!
+//! ```rust
+//! # use shrewnit::{Scalar, Length, UnitOf, Inches};
+//!
+//! struct HalfInches;
+//! impl<S: Scalar> UnitOf<S, Length<S>> for HalfInches {
+//!     fn to_canonical(converted: S) -> S {
+//!         Inches::to_canonical(converted) * S::from_f64(2.0).unwrap()
+//!     }
+//!     fn from_canonical(canonical: S) -> S {
+//!         Inches::from_canonical(canonical) * S::from_f64(2.0).unwrap()
+//!     }
+//! }
+//! ```
+//!
+//! # FAQ
+//!
+//! > Where does the name come from?
+//!
+//! The name is inspired by the etrsucan shrew, the worlds smallest mammal.
+//!
+//! > What does this library depend on?
+//!
+//! Shrewnit depends on one crate: `num-traits`.
+//! Despite this, Shrewnit is 100% Rust, `no_std`, libm, and alloc free!
 
 #![no_std]
 
-pub mod measures;
+pub mod dimensions;
 use core::ops::{Add, Div, Mul, Sub};
 
-pub use measures::*;
+pub use dimensions::*;
 use num_traits::FromPrimitive;
 
 /// A set of requirements for a scalar type to be used in measures.
-/// 
+///
 /// This trait is automatically implemented for any type that implements `FromPrimitive`, `Clone`, and the basic arithmetic operations.
 pub trait Scalar:
     FromPrimitive
@@ -32,7 +193,7 @@ impl<
 }
 
 /// A trait implemented by all physical quantities.
-pub trait Measure<S: Scalar = f64> {
+pub trait Dimension<S: Scalar = f64> {
     type CanonicalUnit: UnitOf<S, Self>;
 
     /// Converts the measure to the given unit.
@@ -44,9 +205,20 @@ pub trait Measure<S: Scalar = f64> {
         U::from_canonical(self.canonical())
     }
 
-    /// Creates a new measure from the given value and unit.
+    /// Creates a new measure from the given scalar and unit.
+    ///
+    /// # Note
+    ///
+    /// Usage of this function directly is discouraged. Instead, use multiplication or the `ScalarExt` trait.
+    ///
+    /// ```
+    /// # use shrewnit::{Meters, ScalarExt};
+    ///
+    /// let quantity = 30.0f32 * Meters;
+    /// let quantity = 30.0f32.meters();
+    /// ```
     #[inline]
-    fn of<U: UnitOf<S, Self>>(value: S) -> Self
+    fn from_scalar<U: UnitOf<S, Self>>(value: S) -> Self
     where
         Self: Sized,
     {
@@ -58,7 +230,15 @@ pub trait Measure<S: Scalar = f64> {
     /// Creates a new measure from the canonical representation.
     fn from_canonical(value: S) -> Self;
 }
-pub trait UnitOf<S: Scalar, M: Measure<S> + ?Sized> {
+
+#[macro_export]
+macro_rules! to {
+    ($measure:ident in $unit:ty) => {
+        $measure.to::<$unit>()
+    };
+}
+
+pub trait UnitOf<S: Scalar, M: Dimension<S> + ?Sized> {
     /// Converts a scalar value from the canonical unit to unit of `Self`.
     fn from_canonical(canonical: S) -> S;
     /// Converts a scalar value from the unit of `Self` to the canonical unit.
@@ -70,11 +250,11 @@ pub trait UnitOf<S: Scalar, M: Measure<S> + ?Sized> {
 /// # Examples
 ///
 /// ```
-/// use shrewnit::Measure;
+/// use shrewnit::Dimension;
 ///
-/// let velocity = 30.0 * shrewnit::MetersPerSecond;
-/// let distance = 100.0 * shrewnit::Meters;
-/// let time = 3.0 * shrewnit::Seconds;
+/// let velocity = 30.0f32 * shrewnit::MetersPerSecond;
+/// let distance = 100.0f32 * shrewnit::Meters;
+/// let time = 3.0f32 * shrewnit::Seconds;
 ///
 /// println!("{}", velocity.to::<shrewnit::Si>());
 /// println!("{}", distance.to::<shrewnit::Si>());
@@ -92,8 +272,8 @@ macro_rules! __measure_conversions {
         impl<S: $crate::Scalar> core::ops::Mul<$rhs<S>> for $self<S> {
             type Output = $output<S>;
             fn mul(self, rhs: $rhs<S>) -> Self::Output {
-                use $crate::Measure;
-                $output::of::<$output_unit>(self.canonical() * rhs.canonical())
+                use $crate::Dimension;
+                $output::from_scalar::<$output_unit>(self.canonical() * rhs.canonical())
             }
         }
 
@@ -103,8 +283,8 @@ macro_rules! __measure_conversions {
         impl<S: $crate::Scalar> core::ops::Div<$rhs<S>> for $self<S> {
             type Output = $output<S>;
             fn div(self, rhs: $rhs<S>) -> Self::Output {
-                use $crate::Measure;
-                $output::of::<$output_unit>(self.canonical() / rhs.canonical())
+                use $crate::Dimension;
+                $output::from_scalar::<$output_unit>(self.canonical() / rhs.canonical())
             }
         }
 
@@ -120,8 +300,8 @@ macro_rules! __unit_mult_imp {
             impl core::ops::Mul<$unit> for $rhs {
                 type Output = $measure<$rhs>;
                 fn mul(self, _rhs: $unit) -> $measure<$rhs> {
-                    use $crate::Measure;
-                    $measure::of::<$unit>(self)
+                    use $crate::Dimension;
+                    $measure::from_scalar::<$unit>(self)
                 }
             }
         )*
@@ -131,7 +311,7 @@ macro_rules! __unit_mult_imp {
 macro_rules! simple_unit {
     (
         $(#[$meta:meta])*
-        $vis:vis $unit:ident of measure $measure:ident = $($rhsper:literal per canonical)? $(per $lhsper:literal canonical)?
+        $vis:vis $unit:ident of dimension $measure:ident = $($rhsper:literal per canonical)? $(per $lhsper:literal canonical)?
     ) => {
         $(#[$meta])*
         #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
@@ -140,35 +320,35 @@ macro_rules! simple_unit {
         impl<S: $crate::Scalar> core::ops::Mul<S> for $unit {
             type Output = $measure<S>;
             fn mul(self, rhs: S) -> $measure<S> {
-                use $crate::Measure;
-                $measure::of::<$unit>(rhs)
+                use $crate::Dimension;
+                $measure::from_scalar::<$unit>(rhs)
             }
         }
 
         $crate::__unit_mult_imp!(
             $unit,
-            $measure, 
-            f64, 
-            f32, 
-            i8, 
-            i16, 
-            i32, 
-            i64, 
-            i128, 
-            isize, 
-            u8, 
-            u16, 
-            u32, 
-            u64, 
-            u128, 
+            $measure,
+            f64,
+            f32,
+            i8,
+            i16,
+            i32,
+            i64,
+            i128,
+            isize,
+            u8,
+            u16,
+            u32,
+            u64,
+            u128,
             usize
         );
 
         impl $unit {
             #[inline]
-            pub fn of<S: $crate::Scalar>(value: S) -> $measure<S> {
-                use $crate::Measure;
-                $measure::of::<Self>(value)
+            pub fn from_scalar<S: $crate::Scalar>(value: S) -> $measure<S> {
+                use $crate::Dimension;
+                $measure::from_scalar::<Self>(value)
             }
         }
 
@@ -200,7 +380,7 @@ macro_rules! simple_unit {
 }
 
 #[macro_export]
-macro_rules! measure {
+macro_rules! dimension {
     (
         $(#[$meta:meta])*
         $vis:vis $name:ident {
@@ -219,7 +399,7 @@ macro_rules! measure {
         #[derive(Clone, Copy, PartialEq, PartialOrd)]
         $vis struct $name<S: $crate::Scalar = f64>(S);
 
-        impl<S: $crate::Scalar> $crate::Measure<S> for $name<S> {
+        impl<S: $crate::Scalar> $crate::Dimension<S> for $name<S> {
             type CanonicalUnit = $canonical_unit;
 
             #[inline]
@@ -288,7 +468,7 @@ macro_rules! measure {
         $(
             $crate::simple_unit!(
                 $(#[$unit_meta])*
-                $vis $unit of measure $name = $($rhsper per canonical)? $(per $lhsper canonical)?
+                $vis $unit of dimension $name = $($rhsper per canonical)? $(per $lhsper canonical)?
             );
         )*
 
@@ -337,7 +517,7 @@ macro_rules! scalar_extension_trait {
                 $(
                     #[inline]
                     fn $func_name(self) -> $measure<S> {
-                        $unit::of(self)
+                        $unit::from_scalar(self)
                     }
                 )*
             )*
@@ -347,7 +527,7 @@ macro_rules! scalar_extension_trait {
 
 scalar_extension_trait!(
     trait ScalarExt {
-        Distance {
+        Length {
             millimeters => Millimeters,
             centimeters => Centimeters,
             meters => Meters,

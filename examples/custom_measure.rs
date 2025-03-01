@@ -1,8 +1,7 @@
-use shrewnit::Measure;
+use shrewnit::Dimension;
 
-shrewnit::measure!(
+shrewnit::dimension!(
     Current {
-        si: Watts,
         canonical: Watts,
 
         Watts: 1.0 per canonical,

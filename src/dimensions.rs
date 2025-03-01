@@ -2,7 +2,7 @@
 //! 
 //! Currently implemented:
 //! 
-//! - [`Distance`]
+//! - [`Length`]
 //! - [`Time`]
 //! - [`LinearVelocity`]
 //! - [`LinearAcceleration`]
@@ -11,13 +11,13 @@
 //! - [`Force`]
 //! - [`Torque`]
 
-use crate::measure;
+use crate::dimension;
 
-measure!(
+dimension!(
     /// Represents a distance.
     ///
     /// Canonically represented in meters.
-    pub Distance {
+    pub Length {
         si: Meters,
         canonical: Meters,
 
@@ -40,7 +40,7 @@ measure!(
     }
 );
 
-measure!(
+dimension!(
     /// Represents a length of time.
     ///
     /// Canonically represented in seconds.
@@ -67,12 +67,12 @@ measure!(
         /// 31536000 seconds.
         Years: per 31_556_926.0 canonical,
     } where {
-        Self * LinearVelocity => Distance in Meters,
+        Self * LinearVelocity => Length in Meters,
         Self * LinearAcceleration => LinearVelocity in MetersPerSecond,
     }
 );
 
-measure!(
+dimension!(
     pub LinearVelocity {
         si: MetersPerSecond,
         canonical: MetersPerSecond,
@@ -82,11 +82,11 @@ measure!(
         FeetPerSecond: 3.2808399 per canonical,
         MilesPerHour: 2.2369363 per canonical,
     } where {
-        Self * Time => Distance in Meters,
+        Self * Time => Length in Meters,
         Self / Time => LinearAcceleration in MetersPerSecondSquared,
     }
 );
-measure! {
+dimension! {
     pub LinearAcceleration {
         si: MetersPerSecondSquared,
         canonical: MetersPerSecondSquared,
@@ -98,7 +98,7 @@ measure! {
     }
 }
 
-measure!(
+dimension!(
     pub Angle {
         si: Radians,
         canonical: Radians,
@@ -110,7 +110,7 @@ measure!(
         Self / Time => AngularVelocity in RadiansPerSecond,
     }
 );
-measure!(
+dimension!(
     pub AngularVelocity {
         si: RadiansPerSecond,
         canonical: RadiansPerSecond,
@@ -124,7 +124,7 @@ measure!(
     }
 );
 
-measure!(
+dimension!(
     pub Force {
         si: Newtons,
         canonical: Newtons,
@@ -132,11 +132,11 @@ measure!(
         Newtons: 1.0 per canonical,
         Pounds: 4.4482216 per canonical,
     } where {
-        Self * Distance => Torque in NewtonMeters,
+        Self * Length => Torque in NewtonMeters,
     }
 );
 
-measure!(
+dimension!(
     pub Torque {
         si: NewtonMeters,
         canonical: NewtonMeters,
@@ -144,7 +144,7 @@ measure!(
         NewtonMeters: 1.0 per canonical,
         FootPounds: per 1.3558179 canonical,
     } where {
-        Self / Distance => Force in Newtons,
-        Self / Force => Distance in Meters,
+        Self / Length => Force in Newtons,
+        Self / Force => Length in Meters,
     }
 );
