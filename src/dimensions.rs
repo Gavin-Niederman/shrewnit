@@ -18,7 +18,6 @@ dimension!(
     ///
     /// Canonically represented in meters.
     pub Length {
-        si: Meters,
         canonical: Meters,
 
         /// One millimeter.
@@ -45,7 +44,6 @@ dimension!(
     ///
     /// Canonically represented in seconds.
     pub Time {
-        si: Seconds,
         canonical: Seconds,
 
         /// One millionth of a second.
@@ -74,7 +72,6 @@ dimension!(
 
 dimension!(
     pub LinearVelocity {
-        si: MetersPerSecond,
         canonical: MetersPerSecond,
 
         MetersPerSecond: 1.0 per canonical,
@@ -88,7 +85,6 @@ dimension!(
 );
 dimension! {
     pub LinearAcceleration {
-        si: MetersPerSecondSquared,
         canonical: MetersPerSecondSquared,
 
         MetersPerSecondSquared: 1.0 per canonical,
@@ -100,7 +96,6 @@ dimension! {
 
 dimension!(
     pub Angle {
-        si: Radians,
         canonical: Radians,
 
         Radians: 1.0 per canonical,
@@ -112,7 +107,6 @@ dimension!(
 );
 dimension!(
     pub AngularVelocity {
-        si: RadiansPerSecond,
         canonical: RadiansPerSecond,
 
         RadiansPerSecond: 1.0 per canonical,
@@ -126,7 +120,6 @@ dimension!(
 
 dimension!(
     pub Force {
-        si: Newtons,
         canonical: Newtons,
 
         Newtons: 1.0 per canonical,
@@ -138,7 +131,6 @@ dimension!(
 
 dimension!(
     pub Torque {
-        si: NewtonMeters,
         canonical: NewtonMeters,
 
         NewtonMeters: 1.0 per canonical,

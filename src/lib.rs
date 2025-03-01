@@ -250,24 +250,6 @@ pub trait UnitOf<S: Scalar, M: Dimension<S> + ?Sized> {
     fn to_canonical(converted: S) -> S;
 }
 
-/// Represents the standard SI unit of any dimension.
-///
-/// # Examples
-///
-/// ```
-/// use shrewnit::Dimension;
-///
-/// let velocity = 30.0f32 * shrewnit::MetersPerSecond;
-/// let distance = 100.0f32 * shrewnit::Meters;
-/// let time = 3.0f32 * shrewnit::Seconds;
-///
-/// println!("{}", velocity.to::<shrewnit::Si>());
-/// println!("{}", distance.to::<shrewnit::Si>());
-/// println!("{}", time.to::<shrewnit::Si>());
-/// ```
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
-pub struct Si;
-
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __measure_conversions {
@@ -389,7 +371,6 @@ macro_rules! dimension {
     (
         $(#[$meta:meta])*
         $vis:vis $name:ident {
-            $(si: $si_unit:ident,)?
             canonical: $canonical_unit:ident,
 
             $(
@@ -476,19 +457,6 @@ macro_rules! dimension {
                 $vis $unit of dimension $name = $($rhsper per canonical)? $(per $lhsper canonical)?
             );
         )*
-
-        $(
-            impl<S: $crate::Scalar> $crate::UnitOf<S, $name<S>> for $crate::Si {
-                #[inline]
-                fn from_canonical(canonical: S) -> S {
-                    $si_unit::from_canonical(canonical)
-                }
-                #[inline]
-                fn to_canonical(converted: S) -> S {
-                    $si_unit::to_canonical(converted)
-                }
-            }
-        )?
 
         $(
             $crate::__measure_conversions!($name, $($converts)*);
