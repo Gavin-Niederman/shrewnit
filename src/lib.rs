@@ -505,8 +505,43 @@ scalar_extension_trait!(
             centimeters => Centimeters,
             meters => Meters,
             kilometers => Kilometers,
+
             inches => Inches,
-            feet => Feet
+            feet => Feet,
+            miles => Miles,
+            yards => Yards,
+            nautical_miles => NauticalMiles
+        },
+
+        Area {    
+            square_millimeters => SquareMillimeters,
+            square_centimeters => SquareCentimeters,
+            square_meters => SquareMeters,
+            square_kilometers => SquareKilometers,
+    
+            square_inches => SquareInches,
+            square_feet => SquareFeet,
+            square_yards => SquareYards,
+            acres => Acres
+        },
+
+        Volume {
+            milliliters => Milliliters,
+            liters => Liters,
+    
+            cubic_millimeters => CubicMillimeters,
+            cubic_centimeters => CubicCentimeters,
+            cubic_meters => CubicMeters,
+            cubic_kilometers => CubicKilometers,
+    
+            cubic_inches => CubicInches,
+            cubic_feet => CubicFeet,
+            cubic_yards => CubicYards,
+    
+            fluid_ounces => FluidOunces,
+            pints => Pints,
+            quarts => Quarts,
+            gallons => Gallons
         },
 
         Time {
@@ -522,6 +557,7 @@ scalar_extension_trait!(
 
         LinearVelocity {
             meters_per_second => MetersPerSecond,
+            kilometers_per_second => KilometersPerSecond,
             kilometers_per_hour => KilometersPerHour,
             feet_per_second => FeetPerSecond,
             miles_per_hour => MilesPerHour
@@ -545,14 +581,29 @@ scalar_extension_trait!(
             degrees_per_second => DegreesPerSecond
         },
 
-        Force {
-            newtons => Newtons,
-            pounds => Pounds
+        Mass {
+            kilograms => Kilograms,
+            grams => Grams,
+            milligrams => Milligrams,
+            micrograms => Micrograms,
+            
+            pounds => Pounds,
+            ounces => Ounces,
+            stones => Stones,
+
+            tonnes => Tonnes,
+            tons => Tons
         },
 
-        Torque {
-            newton_meters => NewtonMeters,
-            foot_pounds => FootPounds
+        Force {
+            newtons => Newtons,
+            pounds_force => PoundsForce
+        },
+
+        Energy {
+            joules => Joules,
+            calories => Calories,
+            kilocalories => Kilocalories
         }
     }
 );

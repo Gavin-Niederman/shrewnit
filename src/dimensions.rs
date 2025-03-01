@@ -3,13 +3,16 @@
 //! Currently implemented:
 //! 
 //! - [`Length`]
+//! - [`Area`]
+//! - [`Volume`]
 //! - [`Time`]
 //! - [`LinearVelocity`]
 //! - [`LinearAcceleration`]
 //! - [`Angle`]
 //! - [`AngularVelocity`]
 //! - [`Force`]
-//! - [`Torque`]
+//! - [`Mass`]
+//! - [`Energy`]
 
 use crate::dimension;
 
@@ -33,9 +36,60 @@ dimension!(
         Inches: 39.370079 per canonical,
         /// One foot.
         Feet: 3.2808399 per canonical,
+        Yards: 1.0936133 per canonical,
+        Miles: per 1609.344 canonical,
+        NauticalMiles: per 1852.0 canonical,
     } where {
         Self / Time => LinearVelocity in MetersPerSecond,
-        Self * Force => Torque in NewtonMeters,
+        Self * Force => Energy in Joules,
+        Self * Length => Area in SquareMeters,
+        Self * Area => Volume in CubicMeters,
+    }
+);
+
+dimension!(
+    pub Area {
+        canonical: SquareMeters,
+
+        SquareMillimeters: 1_000_000.0 per canonical,
+        SquareCentimeters: 10_000.0 per canonical,
+        SquareMeters: 1.0 per canonical,
+        SquareKilometers: per 1_000_000.0 canonical,
+
+        SquareInches: 1550.0031 per canonical,
+        SquareFeet: 10.76391 per canonical,
+        SquareYards: 1.19599 per canonical,
+        Acres: per 4046.8564 canonical,
+    } where {
+        Self / Length => Length in Meters,
+        Self * Length => Volume in CubicMeters,
+    }
+);
+
+dimension!( 
+    pub Volume {
+        canonical: CubicMeters,
+
+        Milliliters: 1_000_000.0 per canonical,
+        Liters: 1000.0 per canonical,
+
+        CubicMillimeters: 1_000_000_000.0 per canonical,
+        CubicCentimeters: 1_000_000.0 per canonical,
+        CubicMeters: 1.0 per canonical,
+        CubicKilometers: per 1_000_000_000.0 canonical,
+
+        CubicInches: 61023.744 per canonical,
+        CubicFeet: 35.314667 per canonical,
+        CubicYards: 1.3079506 per canonical,
+
+        FluidOunces: 33814.023 per canonical,
+        Pints: 2113.3764 per canonical,
+        Quarts: 1056.6882 per canonical,
+        Gallons: 264.17205 per canonical,
+
+    } where {
+        Self / Length => Area in SquareMeters,
+        Self / Area => Length in Meters,
     }
 );
 
@@ -75,6 +129,7 @@ dimension!(
         canonical: MetersPerSecond,
 
         MetersPerSecond: 1.0 per canonical,
+        KilometersPerSecond: per 1000.0 canonical,
         KilometersPerHour: 3.6 per canonical,
         FeetPerSecond: 3.2808399 per canonical,
         MilesPerHour: 2.2369363 per canonical,
@@ -91,6 +146,7 @@ dimension! {
         FeetPerSecondSquared: 3.2808399 per canonical,
     } where {
         Self * Time => LinearVelocity in MetersPerSecond,
+        Self * Mass => Force in Newtons,
     }
 }
 
@@ -119,24 +175,55 @@ dimension!(
 );
 
 dimension!(
-    pub Force {
-        canonical: Newtons,
+    /// Represents mass.
+    /// 
+    /// Canonically represented in kilograms.
+    pub Mass {
+        canonical: Kilograms,
 
-        Newtons: 1.0 per canonical,
-        Pounds: 4.4482216 per canonical,
+        /// Represents the metric tonne unit.
+        Tonnes: per 1000.0 canonical,
+        Kilograms: 1.0 per canonical,
+        Grams: 1_000.0 per canonical,
+        Milligrams: 1_000_000.0 per canonical,
+        Micrograms: 1_000_000_000.0 per canonical,
+
+        Pounds: 2.2046226 per canonical,
+        /// Represents the ounces unit of mass.
+        Ounces: 35.273962 per canonical,
+        /// Represents imperial ton unit.
+        Tons: per 907.18474 canonical,
+        Stones: per 6.3502932 canonical,
     } where {
-        Self * Length => Torque in NewtonMeters,
+        Self * LinearAcceleration => Force in Newtons,
     }
 );
 
 dimension!(
-    pub Torque {
-        canonical: NewtonMeters,
+    /// Represents force.
+    /// 
+    /// Canonically represented in newtons.
+    pub Force {
+        canonical: Newtons,
 
-        NewtonMeters: 1.0 per canonical,
-        FootPounds: per 1.3558179 canonical,
+        Newtons: 1.0 per canonical,
+        PoundsForce: 4.4482216 per canonical,
+    } where {
+        Self * Length => Energy in Joules,
+    }
+);
+
+dimension!(
+    /// Represents energy.
+    /// 
+    /// Canonically represented in joules.
+    pub Energy {
+        canonical: Joules,
+
+        Joules: 1.0 per canonical,
+        Calories: per 4.184 canonical,
+        Kilocalories: per 4184.0 canonical,
     } where {
         Self / Length => Force in Newtons,
-        Self / Force => Length in Meters,
     }
 );
