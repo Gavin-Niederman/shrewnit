@@ -153,7 +153,7 @@ impl UnitOf<Distance> for HalfInches {
 
 The name is inspired by the etrsucan shrew, the worlds smallest mammal.
 
-> Does this library have any dependencies?
+> What does this library depend on?
 
-Yes, this library depends on one crate: `num-traits`.
+Shrewnit depends on one crate: `num-traits`.
 Despite this, Shrewnit is 100% Rust, `no_std`, libm, and alloc free!

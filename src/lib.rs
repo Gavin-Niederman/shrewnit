@@ -1,4 +1,4 @@
-//! Tiny **stable Rust** unit library built with macros.
+#![doc = include_str!("../README.md")]
 
 #![no_std]
 
@@ -8,6 +8,9 @@ use core::ops::{Add, Div, Mul, Sub};
 pub use measures::*;
 use num_traits::FromPrimitive;
 
+/// A set of requirements for a scalar type to be used in measures.
+/// 
+/// This trait is automatically implemented for any type that implements `FromPrimitive`, `Clone`, and the basic arithmetic operations.
 pub trait Scalar:
     FromPrimitive
     + Clone
@@ -28,9 +31,11 @@ impl<
 {
 }
 
+/// A trait implemented by all physical quantities.
 pub trait Measure<S: Scalar = f64> {
     type CanonicalUnit: UnitOf<S, Self>;
 
+    /// Converts the measure to the given unit.
     #[inline]
     fn to<U: UnitOf<S, Self>>(&self) -> S
     where
@@ -39,6 +44,7 @@ pub trait Measure<S: Scalar = f64> {
         U::from_canonical(self.canonical())
     }
 
+    /// Creates a new measure from the given value and unit.
     #[inline]
     fn of<U: UnitOf<S, Self>>(value: S) -> Self
     where
@@ -47,11 +53,15 @@ pub trait Measure<S: Scalar = f64> {
         Self::from_canonical(U::to_canonical(value))
     }
 
+    /// Returns the canonical representation of the measure.
     fn canonical(&self) -> S;
+    /// Creates a new measure from the canonical representation.
     fn from_canonical(value: S) -> Self;
 }
 pub trait UnitOf<S: Scalar, M: Measure<S> + ?Sized> {
+    /// Converts a scalar value from the canonical unit to unit of `Self`.
     fn from_canonical(canonical: S) -> S;
+    /// Converts a scalar value from the unit of `Self` to the canonical unit.
     fn to_canonical(converted: S) -> S;
 }
 

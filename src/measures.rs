@@ -1,3 +1,16 @@
+//! Default measure implementations
+//! 
+//! Currently implemented:
+//! 
+//! - [`Distance`]
+//! - [`Time`]
+//! - [`LinearVelocity`]
+//! - [`LinearAcceleration`]
+//! - [`Angle`]
+//! - [`AngularVelocity`]
+//! - [`Force`]
+//! - [`Torque`]
+
 use crate::measure;
 
 measure!(
