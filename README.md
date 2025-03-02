@@ -5,6 +5,11 @@
 Shrewnit is a 100% stable and `no_std` Rust units library.
 Shrewnit has support for adding custom unit types.
 
+# Note
+
+Shrewnit deviates from SI in one regard: angle is a base dimension.
+This means that the units of torque are not Nm, they are Nm/rad or J/rad.
+
 # Usage
 
 Shrewnit is a type-per-dimension units library, meaning every dimension gets its own type.
