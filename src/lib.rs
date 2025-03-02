@@ -20,7 +20,6 @@
 //!
 //! ```rust
 //! # use shrewnit::Inches;
-//!
 //! let distance = 1.0 * Inches;
 //!
 //! let distance = Inches * 1.0;
@@ -30,7 +29,6 @@
 //!
 //! ```rust
 //! # use shrewnit::ScalarExt;
-//! 
 //! let distance = 1.0.inches();
 //! ```
 //!
@@ -40,7 +38,6 @@
 //!
 //! ```rust
 //! # use shrewnit::Seconds;
-//!
 //! let mut quantity = 1.0 * Seconds * 2.0;
 //! quantity /= 4.0;
 //! ```
@@ -50,7 +47,6 @@
 //!
 //! ```rust
 //! # use shrewnit::{Seconds, MilesPerHour};
-//!
 //! let time = 5.0 * Seconds;
 //! let change_in_velocity = 60.0 * MilesPerHour;
 //!
@@ -63,10 +59,18 @@
 //!
 //! ```rust
 //! use shrewnit::{Dimension, Minutes, Seconds};
-//!
 //! let time = 5.0f32 * Seconds;
 //!
 //! println!("{}", time.to::<Minutes>());
+//! ```
+//! 
+//! If you prefer your code to read like English, you can use the `to!` macro.
+//! 
+//! ```rust
+//! # use shrewnit::{Dimension, Minutes, Seconds, to};
+//! let time = 5.0f32 * Seconds;
+//! 
+//! println!("{}", to!(time in Minutes));
 //! ```
 //!
 //! ## Custom Units and Measures
@@ -107,8 +111,7 @@
 //! Custom units for existing measures can be created by manually implementing the `UnifOf` trait for a type.
 //!
 //! ```rust
-//! use shrewnit::{Scalar, Length, UnitOf};
-//!
+//! # use shrewnit::{Scalar, Length, UnitOf};
 //! struct MyCustomUnitOfLength;
 //! impl<S: Scalar> UnitOf<S, Length<S>> for MyCustomUnitOfLength {
 //!     fn to_canonical(converted: S) -> S {
@@ -123,8 +126,7 @@
 //! You can also use the `simple_unit!` macro in order to streamline simple conversions like this.
 //!
 //! ```rust
-//! use shrewnit::Length;
-//!
+//! # use shrewnit::Length;
 //! shrewnit::simple_unit!(
 //!     pub MyCustomUnitOfDistance of dimension Length = per 2.0 canonical
 //! );
@@ -148,7 +150,6 @@
 //!
 //! ```rust
 //! # use shrewnit::{Scalar, Length, UnitOf, Inches};
-//!
 //! struct HalfInches;
 //! impl<S: Scalar> UnitOf<S, Length<S>> for HalfInches {
 //!     fn to_canonical(converted: S) -> S {

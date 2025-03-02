@@ -65,6 +65,14 @@ let time = 5.0 * Seconds;
 println!("{}", time.to::<Minutes>());
 ```
 
+If you prefer your code to read like English, you can use the `to!` macro.
+
+```rust
+let time = 5.0 * Seconds;
+
+println!("{}", to!(time in Minutes));
+```
+
 ## Custom Units and Dimensions
 
 Advanced users may want to add custom units to a dimension, or entirely new dimensions.
