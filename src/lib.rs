@@ -571,7 +571,8 @@ scalar_extension_trait!(
         Angle {
             radians => Radians,
             rotations => Rotations,
-            degrees => Degrees
+            degrees => Degrees,
+            gradians => Gradians
         },
 
         AngularVelocity {
@@ -599,6 +600,16 @@ scalar_extension_trait!(
         Force {
             newtons => Newtons,
             pounds_force => PoundsForce
+        },
+
+        Torque {
+            newton_meters_per_radians => NewtonMeterPerRadians,
+            newton_meters_per_degrees => NewtonMeterPerDegrees,
+
+            pound_feet_per_radians => PoundFeetPerRadians,
+            pound_feet_per_degrees => PoundFeetPerDegrees,
+
+            dyne_centimeter_per_radians => DyneCentimeterPerRadians
         },
 
         Energy {

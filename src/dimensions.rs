@@ -12,6 +12,7 @@
 //! - [`AngularVelocity`]
 //! - [`Force`]
 //! - [`Mass`]
+//! - [`Torque`]
 //! - [`Energy`]
 
 use crate::dimension;
@@ -157,6 +158,7 @@ dimension!(
         Radians: 1.0 per canonical,
         Rotations: per 6.2831853 canonical,
         Degrees: 57.29578 per canonical,
+        Gradians: 63.661977 per canonical,
     } where {
         Self / Time => AngularVelocity in RadiansPerSecond,
     }
@@ -217,6 +219,29 @@ dimension!(
 );
 
 dimension!(
+    /// Represents torque.
+    /// 
+    /// # Note
+    /// 
+    /// The units of this dimension are different from what you might expect.
+    /// In the SI unit system, angle is not a base dimension, so torque is measured in N*m.
+    /// However, Shrewnit makes angle a base dimension which means that torque is measured in N*m/rad. 
+    pub Torque {
+        canonical: NewtonMeterPerRadians,
+
+        NewtonMeterPerRadians: 1.0 per canonical,
+        NewtonMeterPerDegrees: per 57.29578 canonical,
+
+        PoundFeetPerRadians: per 1.3558179 canonical,
+        PoundFeetPerDegrees: per 77.682646 canonical,
+
+        DyneCentimeterPerRadians: 10_000_000.0 per canonical,
+    } where {
+        Self * Angle => Energy in Joules,
+    }
+);
+
+dimension!(
     /// Represents energy.
     /// 
     /// Canonically represented in joules.
@@ -228,5 +253,6 @@ dimension!(
         Kilocalories: per 4184.0 canonical,
     } where {
         Self / Length => Force in Newtons,
+        Self / Angle => Torque in NewtonMeterPerRadians,
     }
 );
