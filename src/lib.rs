@@ -630,7 +630,7 @@ scalar_extension_trait!(
         Power {
             watts => Watts,
             horsepower => Horsepower,
-            ergs_per_second => ErgsPerSeconds,
+            ergs_per_second => ErgsPerSecond,
             foot_pounds_per_minute => FootPoundsPerMinute
         },
 
