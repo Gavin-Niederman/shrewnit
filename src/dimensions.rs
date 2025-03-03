@@ -10,6 +10,7 @@
 //! - [`LinearAcceleration`]
 //! - [`Angle`]
 //! - [`AngularVelocity`]
+//! - [`AngularAcceleration`]
 //! - [`Force`]
 //! - [`Mass`]
 //! - [`Torque`]
@@ -157,6 +158,8 @@ dimension!(
     } where {
         Self * LinearVelocity => Length in Meters,
         Self * LinearAcceleration => LinearVelocity in MetersPerSecond,
+        Self * AngularVelocity => Angle in Radians,
+        Self * AngularAcceleration => AngularVelocity in RadiansPerSecond,
     }
 );
 
@@ -225,6 +228,22 @@ dimension!(
         Self * Time => Angle in Radians,
     }
 );
+dimension!(
+    pub AngularAcceleration {
+        canonical: RadiansPerSecondSquared,
+
+        /// Represents the radian per second squared unit of angular acceleration.
+        RadiansPerSecondSquared: 1.0 per canonical,
+        /// Represents the rotation per second squared unit of angular acceleration.
+        RotationsPerSecondSquared: per 6.2831853 canonical,
+        /// Represents the rotations per minute squared unit of angular acceleration.
+        RotationsPerMinuteSquared: 572.9578 per canonical,
+        /// Represents the degree per second squared unit of angular acceleration.
+        DegreesPerSecondSquared: 57.29578 per canonical,
+    } where {
+        Self * Time => AngularVelocity in RadiansPerSecond,
+    }
+);
 
 dimension!(
     /// Represents mass.
@@ -290,17 +309,17 @@ dimension!(
     /// In the SI unit system, angle is not a base dimension, so torque is measured in N*m.
     /// However, Shrewnit makes angle a base dimension which means that torque is measured in N*m/rad. 
     pub Torque {
-        canonical: NewtonMetersPerRadians,
+        canonical: NewtonMetersPerRadian,
 
         /// Represents the newton meter per radian unit of torque.
-        NewtonMetersPerRadians: 1.0 per canonical,
+        NewtonMetersPerRadian: 1.0 per canonical,
         /// Represents the newton meter per degree unit of torque.
-        NewtonMetersPerDegrees: per 57.29578 canonical,
+        NewtonMetersPerDegree: per 57.29578 canonical,
 
         /// Represents the pound-foot per radian unit of torque.
-        PoundFeetPerRadians: per 1.3558179 canonical,
+        PoundFeetPerRadian: per 1.3558179 canonical,
         /// Represents the pound-foot per degree unit of torque.
-        PoundFeetPerDegrees: per 77.682646 canonical,
+        PoundFeetPerDegree: per 77.682646 canonical,
 
         /// Represents the dyne centimeter per radian unit of torque.
         DyneCentimetersPerRadians: 10_000_000.0 per canonical,
@@ -328,7 +347,7 @@ dimension!(
         WattHours: per 3600.0 canonical,
     } where {
         Self / Length => Force in Newtons,
-        Self / Angle => Torque in NewtonMetersPerRadians,
+        Self / Angle => Torque in NewtonMetersPerRadian,
         Self / Time => Power in Watts,
     }
 );

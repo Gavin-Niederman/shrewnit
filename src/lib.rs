@@ -610,11 +610,11 @@ scalar_extension_trait!(
         },
 
         Torque {
-            newton_meters_per_radians => NewtonMetersPerRadians,
-            newton_meters_per_degrees => NewtonMetersPerDegrees,
+            newton_meters_per_radian => NewtonMetersPerRadian,
+            newton_meters_per_degree => NewtonMetersPerDegree,
 
-            pound_feet_per_radians => PoundFeetPerRadians,
-            pound_feet_per_degrees => PoundFeetPerDegrees,
+            pound_feet_per_radian => PoundFeetPerRadian,
+            pound_feet_per_degree => PoundFeetPerDegree,
 
             dyne_centimeters_per_radians => DyneCentimetersPerRadians
         },
