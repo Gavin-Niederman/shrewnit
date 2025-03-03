@@ -609,6 +609,13 @@ scalar_extension_trait!(
             dynes => Dynes
         },
 
+        Pressure {
+            pascals => Pascals,
+            psi => Psi,
+            atmospheres => Atmospheres,
+            bars => Bars
+        },
+
         Torque {
             newton_meters_per_radian => NewtonMetersPerRadian,
             newton_meters_per_degree => NewtonMetersPerDegree,

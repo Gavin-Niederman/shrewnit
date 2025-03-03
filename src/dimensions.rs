@@ -12,6 +12,7 @@
 //! - [`AngularVelocity`]
 //! - [`AngularAcceleration`]
 //! - [`Force`]
+//! - [`Pressure`]
 //! - [`Mass`]
 //! - [`Torque`]
 //! - [`Energy`]
@@ -297,6 +298,28 @@ dimension!(
         Self * Length => Energy in Joules,
         Self / LinearAcceleration => Mass in Kilograms,
         Self / Mass => LinearAcceleration in MetersPerSecondSquared,
+        Self / Area => Pressure in Pascals,
+    }
+);
+
+dimension!(
+    /// Represents pressure.
+    /// 
+    /// Canonically represented in pascals.
+    pub Pressure {
+        canonical: Pascals,
+
+        /// Represents the pascal unit of pressure.
+        /// This is the standard SI unit of pressure.
+        Pascals: 1.0 per canonical,
+        /// Represents the PSI (Pounds-force per Square Inch) unit of pressure.
+        Psi: per 6894.7573 canonical,
+        /// Represents the atmosphere unit of pressure.
+        Atmospheres: per 101325.0 canonical,
+        /// Represents the bar unit of pressure.
+        Bars: per 100_000.0 canonical,
+    } where {
+        Self * Area => Force in Newtons,
     }
 );
 
