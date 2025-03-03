@@ -14,6 +14,9 @@
 //! - [`Mass`]
 //! - [`Torque`]
 //! - [`Energy`]
+//! - [`Power`]
+//! - [`Voltage`]
+//! - [`Current`]
 //! 
 //! If you need to define custom dimensions, you can use the [`dimension!`] macro.
 
@@ -269,8 +272,12 @@ dimension!(
         Newtons: 1.0 per canonical,
         /// Represents the pound-force unit of force.
         PoundsForce: 4.4482216 per canonical,
+        /// Represents the dyne unit of force.
+        Dynes: per 1e-05 canonical,
     } where {
         Self * Length => Energy in Joules,
+        Self / LinearAcceleration => Mass in Kilograms,
+        Self / Mass => LinearAcceleration in MetersPerSecondSquared,
     }
 );
 
@@ -283,12 +290,12 @@ dimension!(
     /// In the SI unit system, angle is not a base dimension, so torque is measured in N*m.
     /// However, Shrewnit makes angle a base dimension which means that torque is measured in N*m/rad. 
     pub Torque {
-        canonical: NewtonMeterPerRadians,
+        canonical: NewtonMetersPerRadians,
 
         /// Represents the newton meter per radian unit of torque.
-        NewtonMeterPerRadians: 1.0 per canonical,
+        NewtonMetersPerRadians: 1.0 per canonical,
         /// Represents the newton meter per degree unit of torque.
-        NewtonMeterPerDegrees: per 57.29578 canonical,
+        NewtonMetersPerDegrees: per 57.29578 canonical,
 
         /// Represents the pound-foot per radian unit of torque.
         PoundFeetPerRadians: per 1.3558179 canonical,
@@ -296,7 +303,7 @@ dimension!(
         PoundFeetPerDegrees: per 77.682646 canonical,
 
         /// Represents the dyne centimeter per radian unit of torque.
-        DyneCentimeterPerRadians: 10_000_000.0 per canonical,
+        DyneCentimetersPerRadians: 10_000_000.0 per canonical,
     } where {
         Self * Angle => Energy in Joules,
     }
@@ -315,8 +322,73 @@ dimension!(
         Calories: per 4.184 canonical,
         /// Represents the kilocalorie unit of energy.
         Kilocalories: per 4184.0 canonical,
+        /// Represents the erg unit of energy.
+        Ergs: 10e-7 per canonical,
+        /// Represents the watt-hour unit of energy.
+        WattHours: per 3600.0 canonical,
     } where {
         Self / Length => Force in Newtons,
-        Self / Angle => Torque in NewtonMeterPerRadians,
+        Self / Angle => Torque in NewtonMetersPerRadians,
+        Self / Time => Power in Watts,
+    }
+);
+
+dimension!(
+    /// Represents power.
+    /// 
+    /// Canonically represented in watts.
+    pub Power {
+        canonical: Watts,
+
+        /// Represents the watt unit of power.
+        /// This is the standard SI unit of power.
+        Watts: 1.0 per canonical,
+        /// Represents the horsepower unit of power.
+        Horsepower: per 745.69987 canonical,
+
+        /// Represents the ergs per second unit of power.
+        ErgsPerSecond: 10e-7 per canonical,
+
+        /// Represents the foot-pounds per minute unit of power.
+        FootPoundsPerMinute: 44.253729 per canonical,
+    } where {
+        Self / Voltage => Current in Amperes,
+        Self / Current => Voltage in Volts,
+        Self * Time => Energy in Joules,
+    }
+);
+
+dimension!(
+    /// Represents voltage.
+    /// 
+    /// Canonically represented in volts.
+    pub Voltage {
+        canonical: Volts,
+        
+        /// Represents the millivolt unit of voltage.
+        Millivolts: 1000.0 per canonical,
+        /// Represents the volt unit of voltage.
+        /// This is the standard SI unit of voltage.
+        Volts: 1.0 per canonical,
+        /// Represents the kilovolt unit of voltage.
+        Kilovolts: per 1000.0 canonical,
+    } where {
+        Self * Current => Power in Watts,
+    }
+);
+
+dimension!(
+    pub Current {
+        canonical: Amperes,
+
+        /// Represents the milliampere unit of current.
+        Milliamperes: 1000.0 per canonical,
+        /// Represents the ampere unit of current.
+        /// This is the standard SI unit of current.
+        Amperes: 1.0 per canonical,
+        /// Represents the kiloampere unit of current.
+        Kiloamperes: per 1000.0 canonical,
+    } where {
+        Self * Voltage => Power in Watts,
     }
 );

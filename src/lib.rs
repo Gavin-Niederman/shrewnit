@@ -605,23 +605,45 @@ scalar_extension_trait!(
 
         Force {
             newtons => Newtons,
-            pounds_force => PoundsForce
+            pounds_force => PoundsForce,
+            dynes => Dynes
         },
 
         Torque {
-            newton_meters_per_radians => NewtonMeterPerRadians,
-            newton_meters_per_degrees => NewtonMeterPerDegrees,
+            newton_meters_per_radians => NewtonMetersPerRadians,
+            newton_meters_per_degrees => NewtonMetersPerDegrees,
 
             pound_feet_per_radians => PoundFeetPerRadians,
             pound_feet_per_degrees => PoundFeetPerDegrees,
 
-            dyne_centimeter_per_radians => DyneCentimeterPerRadians
+            dyne_centimeters_per_radians => DyneCentimetersPerRadians
         },
 
         Energy {
             joules => Joules,
             calories => Calories,
-            kilocalories => Kilocalories
+            kilocalories => Kilocalories,
+            ergs => Ergs,
+            watt_hours => WattHours
+        },
+
+        Power {
+            watts => Watts,
+            horsepower => Horsepower,
+            ergs_per_second => ErgsPerSeconds,
+            foot_pounds_per_minute => FootPoundsPerMinute
+        },
+
+        Voltage {
+            volts => Volts,
+            millivolts => Millivolts,
+            kilovolts => Kilovolts
+        },
+
+        Current {
+            amperes => Amperes,
+            milliamperes => Milliamperes,
+            kiloamperes => Kiloamperes
         }
     }
 );
