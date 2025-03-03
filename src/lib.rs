@@ -83,7 +83,7 @@
 //! If you need more example usages,
 //! this is the macro used internally by Shrewnit to create all dimension and unit types.
 //!
-//! ```no_run
+//! ```ignore
 //! shrewnit::dimension!(
 //!     /// Your custom dimension type
 //!     pub MyCustomMeasure {
@@ -137,7 +137,7 @@
 //! If you do not know what this is, go to the definition of the dimension. 
 //! The canonical unit is the one marked with `canonical: <unit>`.
 //!
-//! ```no_run
+//! ```ignore
 //! dimension!(
 //!     pub Torque {
 //!         si: NewtonMeters,
@@ -300,11 +300,39 @@ macro_rules! __unit_mult_imp {
         )*
     };
 }
+
+/// A macro for creating a new unit type.
+/// 
+/// This macro creates a new unit type and implements multiplication with scalars on it.
+/// 
+/// # Note
+/// 
+/// you will have to implement the `UnitOf` trait for the new unit type for this to compile.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use shrewnit::{Length, UnitOf};
+/// 
+/// shrewnit::unit_type!(
+///     /// A unit of length.
+///     pub Feet of dimension Length
+/// );
+/// 
+/// impl<S: shrewnit::Scalar> UnitOf<S, Length<S>> for Feet {
+///     fn from_canonical(canonical: S) -> S {
+///         canonical / S::from_f64(3.28084).unwrap()
+///     }
+///     fn to_canonical(converted: S) -> S {
+///         converted * S::from_f64(3.28084).unwrap()
+///     }
+/// }
+/// ```
 #[macro_export]
-macro_rules! simple_unit {
+macro_rules! unit_type {
     (
         $(#[$meta:meta])*
-        $vis:vis $unit:ident of dimension $dimension:ident = $($rhsper:literal per canonical)? $(per $lhsper:literal canonical)?
+        $vis:vis $unit:ident of dimension $dimension:ident
     ) => {
         $(#[$meta])*
         #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
@@ -315,6 +343,14 @@ macro_rules! simple_unit {
             fn mul(self, rhs: S) -> $dimension<S> {
                 use $crate::Dimension;
                 $dimension::from_scalar::<$unit>(rhs)
+            }
+        }
+
+        impl $unit {
+            #[inline]
+            pub fn from_scalar<S: $crate::Scalar>(value: S) -> $dimension<S> {
+                use $crate::Dimension;
+                $dimension::from_scalar::<Self>(value)
             }
         }
 
@@ -336,14 +372,33 @@ macro_rules! simple_unit {
             u128,
             usize
         );
+    };
+}
 
-        impl $unit {
-            #[inline]
-            pub fn from_scalar<S: $crate::Scalar>(value: S) -> $dimension<S> {
-                use $crate::Dimension;
-                $dimension::from_scalar::<Self>(value)
-            }
-        }
+/// A macro for creating a new unit type with simple conversions. Used internally by [`dimension!`](dimension)
+/// 
+/// Conversions are implemented by multiplying or dividing by a scalar value.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use shrewnit::{Length};
+/// 
+/// shrewnit::simple_unit!(
+///     /// A unit of length.
+///     pub Feet of dimension Length = 3.28084 per canonical
+/// );
+/// ```
+#[macro_export]
+macro_rules! simple_unit {
+    (
+        $(#[$meta:meta])*
+        $vis:vis $unit:ident of dimension $dimension:ident = $($rhsper:literal per canonical)? $(per $lhsper:literal canonical)?
+    ) => {
+        $crate::unit_type!(
+            $(#[$meta])*
+            $vis $unit of dimension $dimension
+        );
 
         $(
             impl<S: $crate::Scalar> $crate::UnitOf<S, $dimension<S>> for $unit {
@@ -372,6 +427,31 @@ macro_rules! simple_unit {
     };
 }
 
+
+/// A macro for creating a new dimension type and any simple associated unit types.
+/// Associated unit types are parsed using similar syntax to the `simple_unit!` macro.
+/// 
+/// # Examples
+/// 
+/// This macro is used extensively in the library to create all dimension and unit types.
+/// Look in the dimensions module source for more examples.
+/// 
+/// ```
+/// shrewnit::dimension!(
+///     /// A dimension of some kind.
+///     pub MyCustomDimension {
+///         canonical: MyStandardUnit,
+///         
+///         MyStandardUnit: 1.0 per canonical,
+/// 
+///         MyHalfUnit: 2.0 per canonical,
+///         MyDoubleUnit: per 2.0 canonical,
+///     } where {
+///         // Optional conversions block.
+///         // Self </ or *> <other or same dimension type> => <output dimension type> in <output units>
+///     }
+/// );
+/// ```
 #[macro_export]
 macro_rules! dimension {
     (
@@ -388,7 +468,7 @@ macro_rules! dimension {
         })?
     ) => {
         $(#[$meta])*
-        #[derive(Clone, Copy, PartialEq, PartialOrd)]
+        #[derive(Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
         $vis struct $name<S: $crate::Scalar = f64>(S);
 
         impl<S: $crate::Scalar> $crate::Dimension<S> for $name<S> {
@@ -471,10 +551,29 @@ macro_rules! dimension {
 }
 
 /// A convenient way to implement extension traits for scalars that allows for quantity construction.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use shrewnit::{Length, Millimeters, Centimeters, Meters};
+/// 
+/// shrewnit::scalar_extension_trait!(
+///     pub trait ScalarExt {
+///         Length {
+///             millimeters => Millimeters,
+///             centimeters => Centimeters,
+///             meters => Meters
+///             // ...
+///         }
+///         // ...
+///     }
+/// );
+/// ```
 #[macro_export]
 macro_rules! scalar_extension_trait {
     (
-        trait $name:ident {
+        $(#[$meta:meta])*
+        $vis:vis trait $name:ident {
             $(
                 $dimension:ident {
                     $(
@@ -484,7 +583,8 @@ macro_rules! scalar_extension_trait {
             ),*
         }
     ) => {
-        pub trait $name<S: $crate::Scalar> {
+        $(#[$meta])*
+        $vis trait $name<S: $crate::Scalar> {
             $(
                 $(
                     fn $func_name(self) -> $dimension<S>;
@@ -505,7 +605,16 @@ macro_rules! scalar_extension_trait {
 }
 
 scalar_extension_trait!(
-    trait ScalarExt {
+    /// An extension trait for scalars that allows for quantity construction.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use shrewnit::ScalarExt;
+    /// 
+    /// let quantity = 100.0.millimeters();
+    /// ```
+    pub trait ScalarExt {
         Length {
             millimeters => Millimeters,
             centimeters => Centimeters,
@@ -651,6 +760,12 @@ scalar_extension_trait!(
             amperes => Amperes,
             milliamperes => Milliamperes,
             kiloamperes => Kiloamperes
+        },
+
+        Temperature {
+            kelvin => Kelvin,
+            celsius => Celsius,
+            fahrenheit => Fahrenheit
         }
     }
 );

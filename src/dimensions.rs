@@ -19,10 +19,11 @@
 //! - [`Power`]
 //! - [`Voltage`]
 //! - [`Current`]
+//! - [`Temperature`]
 //! 
 //! If you need to define custom dimensions, you can use the [`dimension!`] macro.
 
-use crate::dimension;
+use crate::{dimension, unit_type, Scalar, UnitOf};
 
 dimension!(
     /// Represents a distance.
@@ -434,3 +435,41 @@ dimension!(
         Self * Voltage => Power in Watts,
     }
 );
+
+dimension!(
+    /// Represents temperature.
+    pub Temperature {
+        canonical: Kelvin,
+
+        /// Represents the kelvin unit of temperature.
+        Kelvin: 1.0 per canonical,
+    }
+);
+
+unit_type!(
+    /// Represents the celsius unit of temperature.
+    pub Celsius of dimension Temperature
+);
+impl<S: Scalar> UnitOf<S, Temperature<S>> for Celsius {
+    fn from_canonical(canonical: S) -> S {
+        canonical + S::from_f64(273.15).unwrap()
+    }
+
+    fn to_canonical(converted: S) -> S {
+        converted - S::from_f64(273.15).unwrap()
+    }
+}
+
+unit_type!(
+    /// Represents the celsius unit of temperature.
+    pub Fahrenheit of dimension Temperature
+);
+impl<S: Scalar> UnitOf<S, Temperature<S>> for Fahrenheit {
+    fn from_canonical(canonical: S) -> S {
+        (canonical + S::from_f64(459.67).unwrap()) * S::from_f64(5.0).unwrap() / S::from_f64(9.0).unwrap()
+    }
+
+    fn to_canonical(converted: S) -> S {
+        (converted * S::from_f64(9.0).unwrap() / S::from_f64(5.0).unwrap()) - S::from_f64(273.15).unwrap()
+    }
+}
