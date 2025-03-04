@@ -1,7 +1,7 @@
 //! Default dimension implementations
-//! 
+//!
 //! Units currently implemented by Shrewnit:
-//! 
+//!
 //! - [`Length`]
 //! - [`Area`]
 //! - [`Volume`]
@@ -20,10 +20,10 @@
 //! - [`Voltage`]
 //! - [`Current`]
 //! - [`Temperature`]
-//! 
+//!
 //! If you need to define custom dimensions, you can use the [`dimension!`] macro.
 
-use crate::{dimension, unit_type, Scalar, UnitOf};
+use crate::{Scalar, UnitOf, dimension, unit_type};
 
 dimension!(
     /// Represents a distance.
@@ -88,7 +88,7 @@ dimension!(
     }
 );
 
-dimension!( 
+dimension!(
     pub Volume {
         canonical: CubicMeters,
 
@@ -249,7 +249,7 @@ dimension!(
 
 dimension!(
     /// Represents mass.
-    /// 
+    ///
     /// Canonically represented in kilograms.
     pub Mass {
         canonical: Kilograms,
@@ -262,7 +262,7 @@ dimension!(
         Grams: 1_000.0 per canonical,
         /// Represents the kilogram unit of mass.
         Kilograms: 1.0 per canonical,
-        
+
         /// Represents the ton unit of mass.
         Pounds: 2.2046226 per canonical,
         /// Represents the ounces unit of mass.
@@ -283,7 +283,7 @@ dimension!(
 
 dimension!(
     /// Represents force.
-    /// 
+    ///
     /// Canonically represented in newtons.
     pub Force {
         canonical: Newtons,
@@ -305,7 +305,7 @@ dimension!(
 
 dimension!(
     /// Represents pressure.
-    /// 
+    ///
     /// Canonically represented in pascals.
     pub Pressure {
         canonical: Pascals,
@@ -326,12 +326,12 @@ dimension!(
 
 dimension!(
     /// Represents torque.
-    /// 
+    ///
     /// # Note
-    /// 
+    ///
     /// The units of this dimension are different from what you might expect.
     /// In the SI unit system, angle is not a base dimension, so torque is measured in N*m.
-    /// However, Shrewnit makes angle a base dimension which means that torque is measured in N*m/rad. 
+    /// However, Shrewnit makes angle a base dimension which means that torque is measured in N*m/rad.
     pub Torque {
         canonical: NewtonMetersPerRadian,
 
@@ -354,7 +354,7 @@ dimension!(
 
 dimension!(
     /// Represents energy.
-    /// 
+    ///
     /// Canonically represented in joules.
     pub Energy {
         canonical: Joules,
@@ -378,7 +378,7 @@ dimension!(
 
 dimension!(
     /// Represents power.
-    /// 
+    ///
     /// Canonically represented in watts.
     pub Power {
         canonical: Watts,
@@ -403,11 +403,11 @@ dimension!(
 
 dimension!(
     /// Represents voltage.
-    /// 
+    ///
     /// Canonically represented in volts.
     pub Voltage {
         canonical: Volts,
-        
+
         /// Represents the millivolt unit of voltage.
         Millivolts: 1000.0 per canonical,
         /// Represents the volt unit of voltage.
@@ -466,10 +466,12 @@ unit_type!(
 );
 impl<S: Scalar> UnitOf<S, Temperature<S>> for Fahrenheit {
     fn from_canonical(canonical: S) -> S {
-        (canonical + S::from_f64(459.67).unwrap()) * S::from_f64(5.0).unwrap() / S::from_f64(9.0).unwrap()
+        (canonical + S::from_f64(459.67).unwrap()) * S::from_f64(5.0).unwrap()
+            / S::from_f64(9.0).unwrap()
     }
 
     fn to_canonical(converted: S) -> S {
-        (converted * S::from_f64(9.0).unwrap() / S::from_f64(5.0).unwrap()) - S::from_f64(273.15).unwrap()
+        (converted * S::from_f64(9.0).unwrap() / S::from_f64(5.0).unwrap())
+            - S::from_f64(273.15).unwrap()
     }
 }

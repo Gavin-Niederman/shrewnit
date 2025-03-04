@@ -1,4 +1,4 @@
-use shrewnit::{Length, Feet, Inches, Dimension, ScalarExt, Seconds};
+use shrewnit::{Dimension, Feet, Inches, Length, ScalarExt, Seconds};
 
 fn print_in_inches(distance: Length<i32>) {
     println!("{} inches", distance.to::<Inches>());

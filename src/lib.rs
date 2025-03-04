@@ -1,10 +1,10 @@
 //! 100% stable and `no_std` Rust units library with support for custom units and dimensions.
 //!
 //! # Note
-//! 
+//!
 //! Shrewnit deviates from SI in one regard: angle is a base dimension.
 //! This means that the units of torque are not Nm, they are Nm/rad or J/rad.
-//! 
+//!
 //! # Usage
 //!
 //! Shrewnit is a type-per-dimension units library, meaning every dimension gets its own type.
@@ -63,13 +63,13 @@
 //!
 //! println!("{}", time.to::<Minutes>());
 //! ```
-//! 
+//!
 //! If you prefer your code to read like English, you can use the `to!` macro.
-//! 
+//!
 //! ```rust
 //! # use shrewnit::{Dimension, Minutes, Seconds, to};
 //! let time = 5.0f32 * Seconds;
-//! 
+//!
 //! println!("{}", to!(time in Minutes));
 //! ```
 //!
@@ -132,9 +132,9 @@
 //! );
 //! ```
 //!
-//! The conversions will be in terms of the dimension's canonical unit. 
-//! The canonical unit for all Shrewnit measures are the standard SI unit. 
-//! If you do not know what this is, go to the definition of the dimension. 
+//! The conversions will be in terms of the dimension's canonical unit.
+//! The canonical unit for all Shrewnit measures are the standard SI unit.
+//! If you do not know what this is, go to the definition of the dimension.
 //! The canonical unit is the one marked with `canonical: <unit>`.
 //!
 //! ```ignore
@@ -302,23 +302,23 @@ macro_rules! __unit_mult_imp {
 }
 
 /// A macro for creating a new unit type.
-/// 
+///
 /// This macro creates a new unit type and implements multiplication with scalars on it.
-/// 
+///
 /// # Note
-/// 
+///
 /// you will have to implement the `UnitOf` trait for the new unit type for this to compile.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```
 /// use shrewnit::{Length, UnitOf};
-/// 
+///
 /// shrewnit::unit_type!(
 ///     /// A unit of length.
 ///     pub Feet of dimension Length
 /// );
-/// 
+///
 /// impl<S: shrewnit::Scalar> UnitOf<S, Length<S>> for Feet {
 ///     fn from_canonical(canonical: S) -> S {
 ///         canonical / S::from_f64(3.28084).unwrap()
@@ -376,14 +376,14 @@ macro_rules! unit_type {
 }
 
 /// A macro for creating a new unit type with simple conversions. Used internally by [`dimension!`](dimension)
-/// 
+///
 /// Conversions are implemented by multiplying or dividing by a scalar value.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```
 /// use shrewnit::{Length};
-/// 
+///
 /// shrewnit::simple_unit!(
 ///     /// A unit of length.
 ///     pub Feet of dimension Length = 3.28084 per canonical
@@ -427,15 +427,14 @@ macro_rules! simple_unit {
     };
 }
 
-
 /// A macro for creating a new dimension type and any simple associated unit types.
-/// Associated unit types are parsed using similar syntax to the `simple_unit!` macro.
-/// 
+/// Associated unit types are parsed using similar syntax to the [`simple_unit!`] macro.
+///
 /// # Examples
-/// 
+///
 /// This macro is used extensively in the library to create all dimension and unit types.
 /// Look in the dimensions module source for more examples.
-/// 
+///
 /// ```
 /// shrewnit::dimension!(
 ///     /// A dimension of some kind.
@@ -443,7 +442,7 @@ macro_rules! simple_unit {
 ///         canonical: MyStandardUnit,
 ///         
 ///         MyStandardUnit: 1.0 per canonical,
-/// 
+///
 ///         MyHalfUnit: 2.0 per canonical,
 ///         MyDoubleUnit: per 2.0 canonical,
 ///     } where {
@@ -551,12 +550,12 @@ macro_rules! dimension {
 }
 
 /// A convenient way to implement extension traits for scalars that allows for quantity construction.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```
 /// use shrewnit::{Length, Millimeters, Centimeters, Meters};
-/// 
+///
 /// shrewnit::scalar_extension_trait!(
 ///     pub trait ScalarExt {
 ///         Length {
@@ -606,12 +605,12 @@ macro_rules! scalar_extension_trait {
 
 scalar_extension_trait!(
     /// An extension trait for scalars that allows for quantity construction.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use shrewnit::ScalarExt;
-    /// 
+    ///
     /// let quantity = 100.0.millimeters();
     /// ```
     pub trait ScalarExt {
@@ -628,12 +627,12 @@ scalar_extension_trait!(
             nautical_miles => NauticalMiles
         },
 
-        Area {    
+        Area {
             square_millimeters => SquareMillimeters,
             square_centimeters => SquareCentimeters,
             square_meters => SquareMeters,
             square_kilometers => SquareKilometers,
-    
+
             square_inches => SquareInches,
             square_feet => SquareFeet,
             square_yards => SquareYards,
@@ -643,16 +642,16 @@ scalar_extension_trait!(
         Volume {
             milliliters => Milliliters,
             liters => Liters,
-    
+
             cubic_millimeters => CubicMillimeters,
             cubic_centimeters => CubicCentimeters,
             cubic_meters => CubicMeters,
             cubic_kilometers => CubicKilometers,
-    
+
             cubic_inches => CubicInches,
             cubic_feet => CubicFeet,
             cubic_yards => CubicYards,
-    
+
             fluid_ounces => FluidOunces,
             pints => Pints,
             quarts => Quarts,
@@ -702,7 +701,7 @@ scalar_extension_trait!(
             grams => Grams,
             milligrams => Milligrams,
             micrograms => Micrograms,
-            
+
             pounds => Pounds,
             ounces => Ounces,
             stones => Stones,

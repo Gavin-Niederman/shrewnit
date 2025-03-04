@@ -31,7 +31,6 @@ shrewnit::dimension!(
     }
 );
 
-
 fn main() {
     let current = Amperes * 5.0;
     let voltage = Volts * 120.0;
