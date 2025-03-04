@@ -1,8 +1,9 @@
 [package]
 name = "shrewnit"
 description = "A simple, extendable, no_std, no_alloc, and 100% Rust units library."
-version = "0.1.0"
-edition = "2024"
+version = "0.1.1"
+edition = "2018"
+rust-version = "1.33.0"
 license = "MIT"
 repository = "https://github.com/gavin-niederman/shrewnit"
 authors = ["Gavin Niederman"]
@@ -11,4 +12,4 @@ keywords = ["units", "no-std", "quantities", "dimensional-analysis", "no-alloc"]
 categories = ["no-std", "no-std::no-alloc", "science"]
 
 [dependencies]
-num-traits = { version = "0.2.19", default-features = false }
+num-traits = { version = "=0.2.16", default-features = false }
