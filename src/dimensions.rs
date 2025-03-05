@@ -23,7 +23,7 @@
 //!
 //! If you need to define custom dimensions, you can use the [`dimension!`] macro.
 
-use crate::{Scalar, UnitOf, dimension, unit_type};
+use crate::{dimension, unit_type, Scalar, UnitOf};
 
 dimension!(
     /// Represents a distance.

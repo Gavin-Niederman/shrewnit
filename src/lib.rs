@@ -193,13 +193,13 @@ pub trait Scalar:
 {
 }
 impl<
-    T: FromPrimitive
-        + Clone
-        + Mul<T, Output = T>
-        + Div<T, Output = T>
-        + Add<T, Output = T>
-        + Sub<T, Output = T>,
-> Scalar for T
+        T: FromPrimitive
+            + Clone
+            + Mul<T, Output = T>
+            + Div<T, Output = T>
+            + Add<T, Output = T>
+            + Sub<T, Output = T>,
+    > Scalar for T
 {
 }
 

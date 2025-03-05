@@ -55,6 +55,23 @@ let change_in_velocity = 60.0 * MilesPerHour;
 let acceleration = change_in_velocity / time;
 ```
 
+If you attempt an unsupported operation on two quantities you will get a compile error like this:
+
+```
+error[E0277]: cannot multiply `Length` by `Time`
+  --> examples/custom_scalars.rs:10:34
+   |
+10 |     let distance = 300f64.feet() * 1f64.seconds();
+   |                                  ^ no implementation for `Length * Time`
+   |
+   = help: the trait `Mul<Time>` is not implemented for `Length`
+   = help: the following other types implement trait `Mul<Rhs>`:
+             `Length<S>` implements `Mul<Area<S>>`
+             `Length<S>` implements `Mul<Force<S>>`
+             `Length<S>` implements `Mul<S>`
+             `Length<S>` implements `Mul`
+```
+
 ## Accessing the Value
 
 To get the value of a dimension, use the `Dimension` trait's `to` function.

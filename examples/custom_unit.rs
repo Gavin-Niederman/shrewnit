@@ -1,4 +1,4 @@
-use shrewnit::{Dimension, Feet, Length, Seconds, to};
+use shrewnit::{to, Dimension, Feet, Length, Seconds};
 
 shrewnit::simple_unit!(
     pub HalfInches of dimension Length = 78.740158 per canonical
