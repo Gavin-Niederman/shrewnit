@@ -43,11 +43,11 @@ dimension!(
         Kilometers: per 1000.0 canonical,
 
         /// Represents the inch unit of length.
-        Inches: 39.370079 per canonical,
+        Inches: 39.3700787401575 per canonical,
         /// Represents the foot unit of length.
-        Feet: 3.2808399 per canonical,
+        Feet: per 0.3048 canonical,
         /// Represents the yard unit of length.
-        Yards: 1.0936133 per canonical,
+        Yards: per 0.9144 canonical,
         /// Represents the mile unit of length.
         Miles: per 1609.344 canonical,
         /// Represents the nautical mile unit of length.
@@ -75,13 +75,13 @@ dimension!(
         SquareKilometers: per 1_000_000.0 canonical,
 
         /// Represents the square inch unit of area.
-        SquareInches: 1550.0031 per canonical,
+        SquareInches: 1550.0031000062 per canonical,
         /// Represents the square foot unit of area.
-        SquareFeet: 10.76391 per canonical,
+        SquareFeet: 10.7639104167097 per canonical,
         /// Represents the square yard unit of area.
-        SquareYards: 1.19599 per canonical,
+        SquareYards: per 0.83612736 canonical,
         /// Represents the acre unit of area.
-        Acres: per 4046.8564 canonical,
+        Acres: per 4046.8564224 canonical,
     } where {
         Self / Length => Length in Meters,
         Self * Length => Volume in CubicMeters,
@@ -107,20 +107,20 @@ dimension!(
         CubicKilometers: per 1_000_000_000.0 canonical,
 
         /// Represents the cubic inch unit of volume.
-        CubicInches: 61023.744 per canonical,
+        CubicInches: 61023.7440947323 per canonical,
         /// Represents the cubic foot unit of volume.
-        CubicFeet: 35.314667 per canonical,
+        CubicFeet: 35.3146667214886 per canonical,
         /// Represents the cubic yard unit of volume.
-        CubicYards: 1.3079506 per canonical,
+        CubicYards: 1.30795061931439 per canonical,
 
         /// Represents the fluid ounce unit of volume.
-        FluidOunces: 33814.023 per canonical,
+        FluidOunces: 33814.022701843 per canonical,
         /// Represents the pint unit of volume.
-        Pints: 2113.3764 per canonical,
+        Pints: 2113.37641886519 per canonical,
         /// Represents the quart unit of volume.
-        Quarts: 1056.6882 per canonical,
+        Quarts: 1056.68820943259 per canonical,
         /// Represents the gallon unit of volume.
-        Gallons: 264.17205 per canonical,
+        Gallons: 264.172052358148 per canonical,
 
     } where {
         Self / Length => Area in SquareMeters,
@@ -176,9 +176,9 @@ dimension!(
         /// Represents the kilometer per hour unit of linear velocity.
         KilometersPerHour: 3.6 per canonical,
         /// Represents the foot per second unit of linear velocity.
-        FeetPerSecond: 3.2808399 per canonical,
+        FeetPerSecond: per 0.3048 canonical,
         /// Represents the mile per hour unit of linear velocity.
-        MilesPerHour: 2.2369363 per canonical,
+        MilesPerHour: per 0.44704 canonical,
     } where {
         Self * Time => Length in Meters,
         Self / Time => LinearAcceleration in MetersPerSecondSquared,
@@ -191,7 +191,7 @@ dimension! {
         /// Represents the meter per second squared unit of linear acceleration.
         MetersPerSecondSquared: 1.0 per canonical,
         /// Represents the foot per second squared unit of linear acceleration.
-        FeetPerSecondSquared: 3.2808399 per canonical,
+        FeetPerSecondSquared: per 0.3048 canonical,
     } where {
         Self * Time => LinearVelocity in MetersPerSecond,
         Self * Mass => Force in Newtons,
@@ -205,11 +205,11 @@ dimension!(
         /// Represents the radian unit of angle.
         Radians: 1.0 per canonical,
         /// Represents the degree unit of angle.
-        Rotations: per 6.2831853 canonical,
+        Rotations: per 6.28318530717959 canonical,
         /// Represents the degree unit of angle.
-        Degrees: 57.29578 per canonical,
+        Degrees: 57.2957795130823 per canonical,
         /// Represents the gradian unit of angle.
-        Gradians: 63.661977 per canonical,
+        Gradians: 63.6619772367581 per canonical,
     } where {
         Self / Time => AngularVelocity in RadiansPerSecond,
     }
@@ -221,11 +221,11 @@ dimension!(
         /// Represents the radian per second unit of angular velocity.
         RadiansPerSecond: 1.0 per canonical,
         /// Represents the rotation per second unit of angular velocity.
-        RotationsPerSecond: per 6.2831853 canonical,
+        RotationsPerSecond: per 6.28318530717959 canonical,
         /// Represents the degree per second unit of angular velocity.
-        RotationsPerMinute: 9.5492966 per canonical,
+        RotationsPerMinute: 9.54929658551372 per canonical,
         /// Represents the degree per second unit of angular velocity.
-        DegreesPerSecond: 57.29578 per canonical,
+        DegreesPerSecond: 57.2957795130823 per canonical,
     } where {
         Self * Time => Angle in Radians,
     }
@@ -237,11 +237,11 @@ dimension!(
         /// Represents the radian per second squared unit of angular acceleration.
         RadiansPerSecondSquared: 1.0 per canonical,
         /// Represents the rotation per second squared unit of angular acceleration.
-        RotationsPerSecondSquared: per 6.2831853 canonical,
+        RotationsPerSecondSquared: per 6.28318530717959 canonical,
         /// Represents the rotations per minute squared unit of angular acceleration.
-        RotationsPerMinuteSquared: 572.9578 per canonical,
+        RotationsPerMinuteSquared: 572.957795130823 per canonical,
         /// Represents the degree per second squared unit of angular acceleration.
-        DegreesPerSecondSquared: 57.29578 per canonical,
+        DegreesPerSecondSquared: 57.2957795130823 per canonical,
     } where {
         Self * Time => AngularVelocity in RadiansPerSecond,
     }
@@ -264,18 +264,18 @@ dimension!(
         Kilograms: 1.0 per canonical,
 
         /// Represents the ton unit of mass.
-        Pounds: 2.2046226 per canonical,
+        Pounds: per 0.45359237 canonical,
         /// Represents the ounces unit of mass.
-        Ounces: 35.273962 per canonical,
+        Ounces: 35.2739619495804 per canonical,
         /// Represents the stone unit of mass.
-        Stones: per 6.3502932 canonical,
+        Stones: per 6.35029318 canonical,
 
         /// Represents the tonne unit of mass. Defined as one megagram.
         MetricTons: per 1000.0 canonical,
         /// Represents the American (short) ton unit of mass. Defined as 2000 pounds.
         ShortTons: per 907.18474 canonical,
         /// Represents the British (long) ton unit of mass. Defined as 2240 pounds.
-        LongTons: per 1016.0469 canonical,
+        LongTons: per 1016.0469088 canonical,
     } where {
         Self * LinearAcceleration => Force in Newtons,
     }
@@ -314,7 +314,7 @@ dimension!(
         /// This is the standard SI unit of pressure.
         Pascals: 1.0 per canonical,
         /// Represents the PSI (Pounds-force per Square Inch) unit of pressure.
-        Psi: per 6894.7573 canonical,
+        Psi: per 6894.75729316836 canonical,
         /// Represents the atmosphere unit of pressure.
         Atmospheres: per 101325.0 canonical,
         /// Represents the bar unit of pressure.
@@ -338,12 +338,12 @@ dimension!(
         /// Represents the newton meter per radian unit of torque.
         NewtonMetersPerRadian: 1.0 per canonical,
         /// Represents the newton meter per degree unit of torque.
-        NewtonMetersPerDegree: per 57.29578 canonical,
+        NewtonMetersPerDegree: per 57.2957795130823 canonical,
 
         /// Represents the pound-foot per radian unit of torque.
-        PoundFeetPerRadian: per 1.3558179 canonical,
+        PoundFeetPerRadian: per 1.3558179483314 canonical,
         /// Represents the pound-foot per degree unit of torque.
-        PoundFeetPerDegree: per 77.682646 canonical,
+        PoundFeetPerDegree: per 77.6826462274756 canonical,
 
         /// Represents the dyne centimeter per radian unit of torque.
         DyneCentimetersPerRadians: 10_000_000.0 per canonical,
@@ -387,13 +387,13 @@ dimension!(
         /// This is the standard SI unit of power.
         Watts: 1.0 per canonical,
         /// Represents the horsepower unit of power.
-        Horsepower: per 745.69987 canonical,
+        Horsepower: per 745.69987158227 canonical,
 
         /// Represents the ergs per second unit of power.
         ErgsPerSecond: 10e-7 per canonical,
 
         /// Represents the foot-pounds per minute unit of power.
-        FootPoundsPerMinute: 44.253729 per canonical,
+        FootPoundsPerMinute: 44.2537289566359 per canonical,
     } where {
         Self / Voltage => Current in Amperes,
         Self / Current => Voltage in Volts,
