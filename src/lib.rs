@@ -586,13 +586,7 @@ macro_rules! scalar_extension_trait {
         $vis trait $name<S: $crate::Scalar> {
             $(
                 $(
-                    // Silly doc attributes to add links in the generated docs.
-                    
-                    /// Creates a new quantity of dimension [`
-                    #[doc = stringify!($dimension)]
-                    /// `] with a scalar value in units of [`
-                    #[doc = stringify!($unit)]
-                    /// `]
+                    /// Creates a new quantity with a scalar in the given unit.
                     fn $func_name(self) -> $dimension<S>;
                 )*
             )*
