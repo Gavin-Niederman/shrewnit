@@ -452,11 +452,11 @@ unit_type!(
 );
 impl<S: Scalar> UnitOf<S, Temperature<S>> for Celsius {
     fn from_canonical(canonical: S) -> S {
-        canonical + S::from_f64(273.15).unwrap()
+        canonical + S::from_str("273.15").unwrap()
     }
 
     fn to_canonical(converted: S) -> S {
-        converted - S::from_f64(273.15).unwrap()
+        converted - S::from_str("273.15").unwrap()
     }
 }
 
@@ -466,12 +466,12 @@ unit_type!(
 );
 impl<S: Scalar> UnitOf<S, Temperature<S>> for Fahrenheit {
     fn from_canonical(canonical: S) -> S {
-        (canonical + S::from_f64(459.67).unwrap()) * S::from_f64(5.0).unwrap()
-            / S::from_f64(9.0).unwrap()
+        (canonical + S::from_str("459.67").unwrap()) * S::from_str("5.0").unwrap()
+            / S::from_str("9.0").unwrap()
     }
 
     fn to_canonical(converted: S) -> S {
-        (converted * S::from_f64(9.0).unwrap() / S::from_f64(5.0).unwrap())
-            - S::from_f64(273.15).unwrap()
+        (converted * S::from_str("9.0").unwrap() / S::from_str("5.0").unwrap())
+            - S::from_str("273.15").unwrap()
     }
 }

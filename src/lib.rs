@@ -115,10 +115,10 @@
 //! struct MyCustomUnitOfLength;
 //! impl<S: Scalar> UnitOf<S, Length<S>> for MyCustomUnitOfLength {
 //!     fn to_canonical(converted: S) -> S {
-//!         converted / S::from_f64(2.0).unwrap()
+//!         converted / S::from_str("2.0").unwrap()
 //!     }
 //!     fn from_canonical(canonical: S) -> S {
-//!         canonical * S::from_f64(2.0).unwrap()
+//!         canonical * S::from_str("2.0").unwrap()
 //!     }
 //! }
 //! ```
@@ -153,10 +153,10 @@
 //! struct HalfInches;
 //! impl<S: Scalar> UnitOf<S, Length<S>> for HalfInches {
 //!     fn to_canonical(converted: S) -> S {
-//!         Inches::to_canonical(converted) * S::from_f64(2.0).unwrap()
+//!         Inches::to_canonical(converted) * S::from_str("2.0").unwrap()
 //!     }
 //!     fn from_canonical(canonical: S) -> S {
-//!         Inches::from_canonical(canonical) * S::from_f64(2.0).unwrap()
+//!         Inches::from_canonical(canonical) * S::from_str("2.0").unwrap()
 //!     }
 //! }
 //! ```
@@ -175,16 +175,18 @@
 #![no_std]
 
 pub mod dimensions;
-use core::ops::{Add, Div, Mul, Sub};
+use core::{
+    ops::{Add, Div, Mul, Sub},
+    str::FromStr,
+};
 
 pub use dimensions::*;
-use num_traits::FromPrimitive;
 
 /// A set of requirements for a scalar type to be used in measures.
 ///
-/// This trait is automatically implemented for any type that implements `FromPrimitive`, `Clone`, and the basic arithmetic operations.
+/// This trait is automatically implemented for any type that implements `FromStr`, `Clone`, and the basic arithmetic operations.
 pub trait Scalar:
-    FromPrimitive
+    FromStr<Err: core::fmt::Debug>
     + Clone
     + Mul<Self, Output = Self>
     + Div<Self, Output = Self>
@@ -193,7 +195,7 @@ pub trait Scalar:
 {
 }
 impl<
-        T: FromPrimitive
+        T: FromStr<Err: core::fmt::Debug>
             + Clone
             + Mul<T, Output = T>
             + Div<T, Output = T>
@@ -321,10 +323,10 @@ macro_rules! __unit_mult_imp {
 ///
 /// impl<S: shrewnit::Scalar> UnitOf<S, Length<S>> for Feet {
 ///     fn from_canonical(canonical: S) -> S {
-///         canonical / S::from_f64(3.28084).unwrap()
+///         canonical / S::from_str("3.28084").unwrap()
 ///     }
 ///     fn to_canonical(converted: S) -> S {
-///         converted * S::from_f64(3.28084).unwrap()
+///         converted * S::from_str("3.28084").unwrap()
 ///     }
 /// }
 /// ```
@@ -404,11 +406,11 @@ macro_rules! simple_unit {
             impl<S: $crate::Scalar> $crate::UnitOf<S, $dimension<S>> for $unit {
                 #[inline]
                 fn from_canonical(canonical: S) -> S {
-                    canonical * S::from_f64($rhsper).unwrap()
+                    canonical * S::from_str(stringify!($rhsper)).unwrap()
                 }
                 #[inline]
                 fn to_canonical(converted: S) -> S {
-                    converted / S::from_f64($rhsper).unwrap()
+                    converted / S::from_str(stringify!($rhsper)).unwrap()
                 }
             }
         )?
@@ -416,11 +418,11 @@ macro_rules! simple_unit {
             impl<S: $crate::Scalar> $crate::UnitOf<S, $dimension<S>> for $unit {
                 #[inline]
                 fn from_canonical(canonical: S) -> S {
-                    canonical /  S::from_f64($lhsper).unwrap()
+                    canonical /  S::from_str(stringify!($lhsper)).unwrap()
                 }
                 #[inline]
                 fn to_canonical(converted: S) -> S {
-                    converted *  S::from_f64($lhsper).unwrap()
+                    converted *  S::from_str(stringify!($lhsper)).unwrap()
                 }
             }
         )?
@@ -440,7 +442,7 @@ macro_rules! simple_unit {
 ///     /// A dimension of some kind.
 ///     pub MyCustomDimension {
 ///         canonical: MyStandardUnit,
-///         
+///
 ///         MyStandardUnit: 1.0 per canonical,
 ///
 ///         MyHalfUnit: 2.0 per canonical,
