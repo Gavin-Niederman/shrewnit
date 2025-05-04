@@ -1,9 +1,10 @@
-use shrewnit::{Inches, Length, LinearVelocity, Seconds, Time, One};
+use shrewnit::{FeetPerSecond, Inches, Length, LinearVelocity, One, Seconds, Time};
 
 fn main() {
-    const LENGTH: Length<f32> = Inches::ONE;
-    const TIME: Time<f32> = <Seconds as One<f32, _>>::ONE.mul_scalar(2.0);
-    const VELOCITY: LinearVelocity<f32> = LENGTH.div_time(TIME);
+    const LENGTH: Length = Inches::ONE;
+    const TIME: Time = <Seconds as One<f64, _>>::ONE.mul_scalar(2.0);
+    const VELOCITY: LinearVelocity = LENGTH.div_time(TIME);
 
-    dbg!(VELOCITY);
+    const FPS: f64 = VELOCITY.to::<FeetPerSecond>();
+    dbg!(FPS);
 }

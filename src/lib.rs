@@ -248,7 +248,7 @@ pub trait Dimension<S: Scalar = f64> {
     fn from_canonical(value: S) -> Self;
 }
 
-pub trait One<S: Scalar, D: Dimension<S>> {
+pub trait One<S: Scalar, D: Dimension<S>>: UnitOf<S, D> {
     /// The dimension with a value of 1.0 in this unit.
     const ONE: D;
 }
@@ -424,6 +424,15 @@ macro_rules! __dim_const_op_imp {
     ($dimension:ident, $($scalar:ident),*) => {
         $(
             impl $dimension<$scalar> {
+                /// Converts the dimension to the given unit.
+                #[inline]
+                pub const fn to<U: $crate::One<$scalar, Self>>(&self) -> $scalar
+                where
+                    Self: Sized,
+                {
+                    self.canonical() / U::ONE.canonical()
+                }
+
                 /// Adds two quantities of the same dimension together.
                 #[inline]
                 pub const fn add(self, rhs: Self) -> Self {
@@ -446,16 +455,6 @@ macro_rules! __dim_const_op_imp {
                     self.0 -= rhs.0
                 }
 
-                /// Multiplies two quantities of the same dimension together.
-                #[inline]
-                pub const fn mul(self, rhs: Self) -> Self {
-                    Self(self.0 * rhs.0)
-                }
-                /// Multiplies two quantities of the same dimension together.
-                #[inline]
-                pub const fn mul_assign(&mut self, rhs: Self) {
-                    self.0 *= rhs.0
-                }
                 /// Multiplies this quantity by a scalar value.
                 #[inline]
                 pub const fn mul_scalar(self, rhs: $scalar) -> Self {

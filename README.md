@@ -90,6 +90,33 @@ let time = 5.0 * Seconds;
 println!("{}", to!(time in Minutes));
 ```
 
+## Using Shrewnit in const contexts
+
+With the `const_operators` feature enabled (it's on by default), you can use Shrewnit entirely in const!
+That said, the API is significantly more clunky due to Rust lacking support for const trait impls.
+
+In order to create dimensions, use their associated `ONE` constant provided by the `One` trait.
+All unit math is done through functions in the format `<add/sub/div/mul>_<RHS dimension>`.
+For example, to divide a `Length` by a `Time` you would use `div_time`.
+Additionally, there are `mul_scalar` and `div_scalar` functions.
+
+```rust
+const TIME: Time<f32> = Seconds::ONE;
+const DISTANCE: Length<f32> = <Meters as One<f32, _>>::ONE.mul_scalar(2.0);
+const VELOCITY: LinearVelocity<f32> = DISTANCE.div_time(TIME);
+```
+
+Units can also be converted into scalars just like in regular non-const code.
+
+```rust
+const DISTANCE: Length = Meters::ONE;
+
+const INCHES: f64 = DISTANCE.to::<Inches>();
+```
+
+Note that none of this works in const if the dimension type is generic.
+Due to Rust limitations, all const functions are implemented on dimension types individually.
+
 ## Custom Units and Dimensions
 
 Advanced users may want to add custom units to a dimension, or entirely new dimensions.
@@ -171,6 +198,11 @@ impl<S: Scalar> UnitOf<S, Length<S>> for HalfInches {
 ```
 
 # FAQ
+
+> What is the MSRV of Shrewnit?
+
+With the `const_operators` feature disabled, the MSRV is version 1.33 (the oldest version supported by any unit library!).
+However, the feature uses significantly more recent features.
 
 > Where does the name come from?
 

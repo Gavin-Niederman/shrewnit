@@ -43,7 +43,7 @@ dimension!(
         Kilometers: per 1000.0 canonical,
 
         /// Represents the inch unit of length.
-        Inches: 39.3700787401575 per canonical,
+        Inches: per 0.0254 canonical,
         /// Represents the foot unit of length.
         Feet: per 0.3048 canonical,
         /// Represents the yard unit of length.
@@ -176,7 +176,7 @@ dimension!(
         /// Represents the kilometer per hour unit of linear velocity.
         KilometersPerHour: 3.6 per canonical,
         /// Represents the foot per second unit of linear velocity.
-        FeetPerSecond: per 0.3048 canonical,
+        FeetPerSecond: 3.281 per canonical,
         /// Represents the mile per hour unit of linear velocity.
         MilesPerHour: per 0.44704 canonical,
     } where {
