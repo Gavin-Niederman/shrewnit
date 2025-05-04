@@ -178,5 +178,6 @@ The name is inspired by the etrsucan shrew, the worlds smallest mammal.
 
 > What does this library depend on?
 
-Shrewnit depends on one crate: `num-traits`.
+Shrewnit always depends on one crate: `num-traits`.
+If the `const_operators` feature is enabled, `paste` will also be added to the dependencies.
 Despite this, Shrewnit is 100% Rust, `no_std`, libm, and alloc free!

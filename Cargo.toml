@@ -13,3 +13,9 @@ categories = ["no-std", "no-std::no-alloc", "science"]
 
 [dependencies]
 num-traits = { version = "=0.2.16", default-features = false }
+paste = { version = "1.0.15", optional = true }
+
+[features]
+default = ["const_operators"]
+
+const_operators = ["dep:paste"]

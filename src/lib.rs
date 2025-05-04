@@ -178,13 +178,18 @@ pub mod dimensions;
 use core::ops::{Add, Div, Mul, Sub};
 
 pub use dimensions::*;
-use num_traits::FromPrimitive;
+use num_traits::{AsPrimitive, FromPrimitive};
+
+#[doc(hidden)]
+#[cfg(feature = "const_operators")]
+pub use paste::paste as __paste;
 
 /// A set of requirements for a scalar type to be used in measures.
 ///
 /// This trait is automatically implemented for any type that implements `FromPrimitive`, `Clone`, and the basic arithmetic operations.
 pub trait Scalar:
     FromPrimitive
+    + AsPrimitive<f64>
     + Clone
     + Mul<Self, Output = Self>
     + Div<Self, Output = Self>
@@ -194,6 +199,7 @@ pub trait Scalar:
 }
 impl<
         T: FromPrimitive
+            + AsPrimitive<f64>
             + Clone
             + Mul<T, Output = T>
             + Div<T, Output = T>
@@ -242,6 +248,11 @@ pub trait Dimension<S: Scalar = f64> {
     fn from_canonical(value: S) -> Self;
 }
 
+pub trait One<S: Scalar, D: Dimension<S>> {
+    /// The dimension with a value of 1.0 in this unit.
+    const ONE: D;
+}
+
 #[macro_export]
 macro_rules! to {
     ($dimension:ident in $unit:ty) => {
@@ -258,6 +269,46 @@ pub trait UnitOf<S: Scalar, M: Dimension<S> + ?Sized> {
 
 #[macro_export]
 #[doc(hidden)]
+#[cfg(not(feature = "const_operators"))]
+macro_rules! __const_conversion_op_imp {
+    ($self:ident, Self * $rhs:ident => $output:ident in $output_unit:ty, $($scalar:ident),*) => {};
+    ($self:ident, Self / $rhs:ident => $output:ident in $output_unit:ty, $($scalar:ident),*) => {};
+}
+
+#[macro_export]
+#[doc(hidden)]
+#[cfg(feature = "const_operators")]
+macro_rules! __const_conversion_op_imp {
+    ($self:ident, Self * $rhs:ident => $output:ident in $output_unit:ty, $($scalar:ident),*) => {
+        $crate::__paste! {
+            $(
+                impl $self<$scalar> {
+                    #[inline]
+                    pub const fn [<mul_ $rhs:lower>](self, rhs: $rhs<$scalar>) -> $output<$scalar> {
+                        use $crate::One;
+                        $output::from_canonical(<$output_unit as One<$scalar, _>>::ONE.canonical() * self.mul_scalar(rhs.canonical()).canonical())
+                    }
+                }
+            )*
+        }
+    };
+    ($self:ident, Self / $rhs:ident => $output:ident in $output_unit:ty, $($scalar:ident),*) => {
+        $crate::__paste! {
+            $(
+                impl $self<$scalar> {
+                    #[inline]
+                    pub const fn [<div_ $rhs:lower>](self, rhs: $rhs<$scalar>) -> $output<$scalar> {
+                        use $crate::One;
+                        $output::from_canonical(<$output_unit as One<$scalar, _>>::ONE.canonical() * self.div_scalar(rhs.canonical()).canonical())
+                    }
+                }
+            )*
+        }
+    };
+}
+
+#[macro_export]
+#[doc(hidden)]
 macro_rules! __measure_conversions {
     {} => {};
     {$self:ty,} => {};
@@ -266,9 +317,27 @@ macro_rules! __measure_conversions {
             type Output = $output<S>;
             fn mul(self, rhs: $rhs<S>) -> Self::Output {
                 use $crate::Dimension;
-                $output::from_scalar::<$output_unit>(self.canonical() * rhs.canonical())
+                $output::from_scalar::<$output_unit>(Dimension::canonical(&self) * Dimension::canonical(&rhs))
             }
         }
+        $crate::__const_conversion_op_imp!(
+            $self,
+            Self * $rhs => $output in $output_unit,
+            f64,
+            f32,
+            i8,
+            i16,
+            i32,
+            i64,
+            i128,
+            isize,
+            u8,
+            u16,
+            u32,
+            u64,
+            u128,
+            usize
+        );
 
         $crate::__measure_conversions!($self, $($rest)*);
     };
@@ -277,9 +346,27 @@ macro_rules! __measure_conversions {
             type Output = $output<S>;
             fn div(self, rhs: $rhs<S>) -> Self::Output {
                 use $crate::Dimension;
-                $output::from_scalar::<$output_unit>(self.canonical() / rhs.canonical())
+                $output::from_scalar::<$output_unit>(Dimension::canonical(&self) / Dimension::canonical(&rhs))
             }
         }
+        $crate::__const_conversion_op_imp!(
+            $self,
+            Self / $rhs => $output in $output_unit,
+            f64,
+            f32,
+            i8,
+            i16,
+            i32,
+            i64,
+            i128,
+            isize,
+            u8,
+            u16,
+            u32,
+            u64,
+            u128,
+            usize
+        );
 
         $crate::__measure_conversions!($self, $($rest)*);
     };
@@ -295,6 +382,109 @@ macro_rules! __unit_mult_imp {
                 fn mul(self, _rhs: $unit) -> $dimension<$rhs> {
                     use $crate::Dimension;
                     $dimension::from_scalar::<$unit>(self)
+                }
+            }
+        )*
+    };
+}
+
+#[macro_export]
+#[doc(hidden)]
+#[cfg(not(feature = "const_operators"))]
+macro_rules! __dim_const_imp {
+    ($name:ident) => {};
+}
+#[macro_export]
+#[doc(hidden)]
+#[cfg(feature = "const_operators")]
+macro_rules! __dim_const_imp {
+    ($name:ident) => {
+        impl<S: $crate::Scalar> $name<S> {
+            #[inline]
+            pub const fn from_canonical(value: S) -> Self {
+                Self(value)
+            }
+            #[inline]
+            pub const fn canonical(&self) -> S
+            where
+                S: Copy,
+            {
+                self.0
+            }
+        }
+        $crate::__dim_const_op_imp!(
+            $name, f64, f32, i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize
+        );
+    };
+}
+#[macro_export]
+#[doc(hidden)]
+#[cfg(feature = "const_operators")]
+macro_rules! __dim_const_op_imp {
+    ($dimension:ident, $($scalar:ident),*) => {
+        $(
+            impl $dimension<$scalar> {
+                /// Adds two quantities of the same dimension together.
+                #[inline]
+                pub const fn add(self, rhs: Self) -> Self {
+                    Self(self.0 + rhs.0)
+                }
+                /// Adds two quantities of the same dimension together.
+                #[inline]
+                pub const fn add_assign(&mut self, rhs: Self) {
+                    self.0 += rhs.0
+                }
+
+                /// Finds the difference between self and rhs.
+                #[inline]
+                pub const fn sub(self, rhs: Self) -> Self {
+                    Self(self.0 - rhs.0)
+                }
+                /// Finds the difference between self and rhs.
+                #[inline]
+                pub const fn sub_assign(&mut self, rhs: Self) {
+                    self.0 -= rhs.0
+                }
+
+                /// Multiplies two quantities of the same dimension together.
+                #[inline]
+                pub const fn mul(self, rhs: Self) -> Self {
+                    Self(self.0 * rhs.0)
+                }
+                /// Multiplies two quantities of the same dimension together.
+                #[inline]
+                pub const fn mul_assign(&mut self, rhs: Self) {
+                    self.0 *= rhs.0
+                }
+                /// Multiplies this quantity by a scalar value.
+                #[inline]
+                pub const fn mul_scalar(self, rhs: $scalar) -> Self {
+                    Self(self.0 * rhs)
+                }
+                /// Multiplies this quantity by a scalar value.
+                #[inline]
+                pub const fn mul_assign_scalar(&mut self, rhs: $scalar) {
+                    self.0 *= rhs
+                }
+
+
+                #[inline]
+                pub const fn div(self, rhs: Self) -> Self {
+                    Self(self.0 / rhs.0)
+                }
+                #[inline]
+                pub const fn div_assign(&mut self, rhs: Self) {
+                    self.0 /= rhs.0
+                }
+                /// Divides this quantity by a scalar value.
+                #[inline]
+                pub const fn div_scalar(self, rhs: $scalar) -> Self {
+                    Self(self.0 / rhs)
+                }
+                /// Divides this quantity by a scalar value.
+                #[inline]
+                pub const fn div_assign_scalar(&mut self, rhs: $scalar) {
+                    self.0 /= rhs
                 }
             }
         )*
@@ -335,7 +525,7 @@ macro_rules! unit_type {
         $vis:vis $unit:ident of dimension $dimension:ident
     ) => {
         $(#[$meta])*
-        #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash)]
+        #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash, Default)]
         $vis struct $unit;
 
         impl<S: $crate::Scalar> core::ops::Mul<S> for $unit {
@@ -375,6 +565,27 @@ macro_rules! unit_type {
     };
 }
 
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __unit_one_imp {
+    ($unit:ident, $dimension:ident, $rhsper:literal per canonical, $($scalar:ident),*) => {
+        $(
+            impl $crate::One<$scalar, $dimension<$scalar>> for $unit {
+                #[allow(clippy::excessive_precision)]
+                const ONE: $dimension<$scalar> = $dimension((1.0 / $rhsper) as $scalar);
+            }
+        )*
+    };
+    ($unit:ident, $dimension:ident, per $lhsper:literal canonical, $($scalar:ident),*) => {
+        $(
+            impl $crate::One<$scalar, $dimension<$scalar>> for $unit {
+                #[allow(clippy::excessive_precision)]
+                const ONE: $dimension<$scalar> = $dimension($lhsper as $scalar);
+            }
+        )*
+    };
+}
+
 /// A macro for creating a new unit type with simple conversions. Used internally by [`dimension!`](dimension)
 ///
 /// Conversions are implemented by multiplying or dividing by a scalar value.
@@ -401,26 +612,64 @@ macro_rules! simple_unit {
         );
 
         $(
+            $crate::__unit_one_imp!(
+                $unit,
+                $dimension,
+                $rhsper per canonical,
+                f64,
+                f32,
+                i8,
+                i16,
+                i32,
+                i64,
+                i128,
+                isize,
+                u8,
+                u16,
+                u32,
+                u64,
+                u128,
+                usize
+            );
             impl<S: $crate::Scalar> $crate::UnitOf<S, $dimension<S>> for $unit {
                 #[inline]
                 fn from_canonical(canonical: S) -> S {
-                    canonical * S::from_f64($rhsper).unwrap()
+                    S::from_f64(canonical.as_() * $rhsper).unwrap()
                 }
                 #[inline]
                 fn to_canonical(converted: S) -> S {
-                    converted / S::from_f64($rhsper).unwrap()
+                    S::from_f64(converted.as_() / $rhsper).unwrap()
                 }
             }
         )?
         $(
+            $crate::__unit_one_imp!(
+                $unit,
+                $dimension,
+                per $lhsper canonical,
+                f64,
+                f32,
+                i8,
+                i16,
+                i32,
+                i64,
+                i128,
+                isize,
+                u8,
+                u16,
+                u32,
+                u64,
+                u128,
+                usize
+            );
             impl<S: $crate::Scalar> $crate::UnitOf<S, $dimension<S>> for $unit {
                 #[inline]
                 fn from_canonical(canonical: S) -> S {
-                    canonical /  S::from_f64($lhsper).unwrap()
+                    S::from_f64(canonical.as_() /  $lhsper).unwrap()
                 }
                 #[inline]
                 fn to_canonical(converted: S) -> S {
-                    converted *  S::from_f64($lhsper).unwrap()
+                     S::from_f64(converted.as_() * $lhsper).unwrap()
                 }
             }
         )?
@@ -482,6 +731,7 @@ macro_rules! dimension {
                 Self(value)
             }
         }
+        $crate::__dim_const_imp!($name);
 
         impl<S: $crate::Scalar + core::fmt::Debug> core::fmt::Debug for $name<S> {
             fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
