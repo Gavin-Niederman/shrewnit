@@ -35,7 +35,7 @@ fn main() {
     let current = Amperes * 5.0;
     let voltage = Volts * 120.0;
 
-    let power = current * voltage;
+    let power: Power = current * voltage;
 
     println!("{}", power.to::<Watts>())
 }

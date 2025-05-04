@@ -251,6 +251,8 @@ pub trait Dimension<S: Scalar = f64> {
 pub trait One<S: Scalar, D: Dimension<S>>: UnitOf<S, D> {
     /// The dimension with a value of 1.0 in this unit.
     const ONE: D;
+    /// The amount of this unit that makes up one canonical unit.
+    const ONE_CANONICAL: S;
 }
 
 #[macro_export]
@@ -430,7 +432,7 @@ macro_rules! __dim_const_op_imp {
                 where
                     Self: Sized,
                 {
-                    self.canonical() / U::ONE.canonical()
+                    self.canonical() * U::ONE_CANONICAL
                 }
 
                 /// Adds two quantities of the same dimension together.
@@ -564,22 +566,32 @@ macro_rules! unit_type {
     };
 }
 
+
+#[cfg(not(feature = "const_operators"))]
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __unit_one_imp {
+    ($($tt:tt)*) => { };
+}
+#[cfg(feature = "const_operators")]
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __unit_one_imp {
     ($unit:ident, $dimension:ident, $rhsper:literal per canonical, $($scalar:ident),*) => {
         $(
+            #[allow(clippy::excessive_precision)]
             impl $crate::One<$scalar, $dimension<$scalar>> for $unit {
-                #[allow(clippy::excessive_precision)]
-                const ONE: $dimension<$scalar> = $dimension((1.0 / $rhsper) as $scalar);
+                const ONE: $dimension<$scalar> = $dimension::from_canonical((1.0 / $rhsper) as $scalar);
+                const ONE_CANONICAL: $scalar = $rhsper as $scalar;
             }
         )*
     };
     ($unit:ident, $dimension:ident, per $lhsper:literal canonical, $($scalar:ident),*) => {
         $(
+            #[allow(clippy::excessive_precision)]
             impl $crate::One<$scalar, $dimension<$scalar>> for $unit {
-                #[allow(clippy::excessive_precision)]
-                const ONE: $dimension<$scalar> = $dimension($lhsper as $scalar);
+                const ONE: $dimension<$scalar> = $dimension::from_canonical($lhsper as $scalar);
+                const ONE_CANONICAL: $scalar = (1.0 / $lhsper) as $scalar;
             }
         )*
     };
