@@ -1,4 +1,4 @@
-use shrewnit::Dimension;
+use shrewnit::prelude::*;
 
 shrewnit::dimension!(
     Current {

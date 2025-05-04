@@ -1,95 +1,132 @@
 //! 100% stable and `no_std` Rust units library with support for custom units and dimensions.
-//!
+//! 
 //! # Note
-//!
+//! 
 //! Shrewnit deviates from SI in one regard: angle is a base dimension.
 //! This means that the units of torque are not Nm, they are Nm/rad or J/rad.
-//!
+//! 
 //! # Usage
-//!
+//! 
 //! Shrewnit is a type-per-dimension units library, meaning every dimension gets its own type.
-//! Each unit has its own type as well, but they are only used for conversions and initialization.
-//!
+//! Each unit has its own type as well, but they are only used for conversions and initialization of quantities.
+//! 
 //! ## Creating Quantities
-//!
+//! 
 //! Quantities can be created in two ways: multiplication and `ScalarExt`.
 //! Multiplication is techinically more correct (quantities are defined as the product of a scalar and a unit),
 //! but some may find `ScalarExt` easier to read.
-//!
+//! 
 //! Multiplication with unit type:
-//!
-//! ```rust
-//! # use shrewnit::Inches;
+//! 
+//! ```
+//! # use shrewnit::prelude::*;
 //! let distance = 1.0 * Inches;
-//!
+//! 
 //! let distance = Inches * 1.0;
 //! ```
-//!
+//! 
 //! `ScalarExt`:
-//!
-//! ```rust
-//! # use shrewnit::ScalarExt;
+//! 
+//! ```
+//! # use shrewnit::prelude::*;
 //! let distance = 1.0.inches();
 //! ```
-//!
+//! 
 //! ## Unit Math
-//!
-//! Quantities can be multiplied and divided with un-united scalars, but not added or subtracted.
-//!
-//! ```rust
-//! # use shrewnit::Seconds;
+//! 
+//! Quantities can be multiplied and divided by un-united scalars, 
+//! but not added or subtracted by un-united scalars.
+//! 
+//! ```
+//! # use shrewnit::prelude::*;
 //! let mut quantity = 1.0 * Seconds * 2.0;
 //! quantity /= 4.0;
 //! ```
-//!
+//! 
 //! Additional operations are supported depending on the dimension of the quantity.
-//! For example, multiplying a `LinearVelocity` with a `Time` will result in a `Distance`.
-//!
-//! ```rust
-//! # use shrewnit::{Seconds, MilesPerHour};
+//! For example, multiplying a `LinearVelocity` with a `Time` will result in a `Length`.
+//! 
+//! ```
+//! # use shrewnit::prelude::*;
 //! let time = 5.0 * Seconds;
 //! let change_in_velocity = 60.0 * MilesPerHour;
-//!
+//! 
 //! let acceleration = change_in_velocity / time;
 //! ```
-//!
+//! 
+//! If you attempt an unsupported operation on two quantities you will get a compile error like this:
+//! 
+//! ```text
+//! error[E0277]: cannot multiply `Length` by `Time`
+//!   --> examples/custom_scalars.rs:10:34
+//!    |
+//! 10 |     let distance = 300f64.feet() * 1f64.seconds();
+//!    |                                  ^ no implementation for `Length * Time`
+//!    |
+//!    = help: the trait `Mul<Time>` is not implemented for `Length`
+//!    = help: the following other types implement trait `Mul<Rhs>`:
+//!              `Length<S>` implements `Mul<Area<S>>`
+//!              `Length<S>` implements `Mul<Force<S>>`
+//!              `Length<S>` implements `Mul<S>`
+//!              `Length<S>` implements `Mul`
+//! ```
+//! 
 //! ## Accessing the Value
-//!
-//! To get the value of a quantity, use the `Dimension` trait's `to` function.
-//!
-//! ```rust
-//! use shrewnit::{Dimension, Minutes, Seconds};
-//! let time = 5.0f32 * Seconds;
-//!
+//! 
+//! To get the value of a dimension, use the `to` function.
+//! 
+//! ```
+//! # use shrewnit::prelude::*;
+//! 
+//! let time = 5.0f64 * Seconds;
+//! 
 //! println!("{}", time.to::<Minutes>());
 //! ```
-//!
-//! If you prefer your code to read like English, you can use the `to!` macro.
-//!
-//! ```rust
-//! # use shrewnit::{Dimension, Minutes, Seconds, to};
-//! let time = 5.0f32 * Seconds;
-//!
-//! println!("{}", to!(time in Minutes));
+//! 
+//! ## Using Shrewnit in const contexts
+//! 
+//! With the `const_operators` feature enabled (it's on by default), you can use Shrewnit entirely in const!
+//! That said, the API is significantly more clunky due to Rust lacking support for const trait impls.
+//! 
+//! In order to create dimensions, use their associated `ONE` constant provided by the `One` trait.
+//! All unit math is done through functions in the format `<add/sub/div/mul>_<RHS dimension>`.
+//! For example, to divide a `Length` by a `Time` you would use `div_time`.
+//! Additionally, there are `mul_scalar` and `div_scalar` functions.
+//! 
 //! ```
-//!
-//! ## Custom Units and Measures
-//!
-//! Advanced users may want to add custom units to a dimension, or entirely new measures.
-//!
-//! ### Custom measures
-//!
-//! Use the `dimension!` macro to create new measures.
-//! If you need more example usages,
-//! this is the macro used internally by Shrewnit to create all dimension and unit types.
-//!
+//! # use shrewnit::prelude::*;
+//! const TIME: Time<f32> = Seconds::ONE;
+//! const DISTANCE: Length<f32> = <Meters as One<f32, _>>::ONE.mul_scalar(2.0);
+//! const VELOCITY: LinearVelocity<f32> = DISTANCE.div_time(TIME);
+//! ```
+//! 
+//! Units can also be converted into scalars just like in regular non-const code.
+//! 
+//! ```
+//! # use shrewnit::prelude::*;
+//! const DISTANCE: Length = Meters::ONE;
+//! 
+//! const INCHES: f64 = DISTANCE.to::<Inches>();
+//! ```
+//! 
+//! Note that none of this works in const if the dimension type is generic.
+//! Due to Rust limitations, all const functions are implemented on dimension types individually.
+//! 
+//! ## Custom Units and Dimensions
+//! 
+//! Advanced users may want to add custom units to a dimension, or entirely new dimensions.
+//! 
+//! ### Custom dimensions
+//! 
+//! Use the `dimension!` macro to create new dimensions. If you need more example usages, this is the macro used internally by Shrewnit to create all dimension and unit types.
+//! 
 //! ```ignore
 //! shrewnit::dimension!(
 //!     /// Your custom dimension type
-//!     pub MyCustomMeasure {
+//!     pub MyCustomDimension {
 //!         // Shrewnit uses standard SI units as canonical units. This isn't required. Do whatever you feel like.
 //!         canonical: MyStandardSiUnit,
-//!
+//! 
 //!         // Conversion can be read as "one MyStandardSiUnit per canonical unit"
 //!         MyStandardSiUnit: 1.0 per canonical,
 //!         // Conversion can be read as "two MyHalfUnits per canonical unit"
@@ -99,79 +136,88 @@
 //!     } where {
 //!         // Optional operations block.
 //!         // Self </ or *> <other or same dimension type> => <output dimension type> in <output units>
-//!         Self / SomeOtherMeasure => ACompletelyDifferentMeasure in SomeUnit,
+//!         Self / SomeOtherDimension => ACompletelyDifferentDimension in SomeUnit,
 //!     }
 //! );
 //! ```
-//!
+//! 
 //! This will create the dimension type, the unit types, and any necessary implementations.
-//!
+//! 
 //! ### Custom Units
-//!
-//! Custom units for existing measures can be created by manually implementing the `UnifOf` trait for a type.
-//!
-//! ```rust
-//! # use shrewnit::{Scalar, Length, UnitOf};
+//! 
+//! Custom units for existing dimensions can be created by manually implementing the `UnitOf` trait for a type.
+//! 
+//! ```
+//! # use shrewnit::{UnitOf, Scalar, prelude::*};
 //! struct MyCustomUnitOfLength;
 //! impl<S: Scalar> UnitOf<S, Length<S>> for MyCustomUnitOfLength {
 //!     fn to_canonical(converted: S) -> S {
 //!         converted / S::from_f64(2.0).unwrap()
 //!     }
 //!     fn from_canonical(canonical: S) -> S {
-//!         canonical * S::from_f64(2.0).unwrap()
-//!     }
+//!         canonical * S::from_f64(2.0).unwrap()    }
 //! }
 //! ```
-//!
+//! 
 //! You can also use the `simple_unit!` macro in order to streamline simple conversions like this.
-//!
-//! ```rust
-//! # use shrewnit::Length;
+//! 
+//! ```
+//! # use shrewnit::prelude::*;
 //! shrewnit::simple_unit!(
-//!     pub MyCustomUnitOfDistance of dimension Length = per 2.0 canonical
+//!     pub MyCustomUnitOfLength of dimension Length = per 2.0 canonical
 //! );
 //! ```
-//!
-//! The conversions will be in terms of the dimension's canonical unit.
-//! The canonical unit for all Shrewnit measures are the standard SI unit.
-//! If you do not know what this is, go to the definition of the dimension.
-//! The canonical unit is the one marked with `canonical: <unit>`.
-//!
+//! 
+//! The conversions will be in terms of the dimension's canonical unit. The canonical unit for all Shrewnit measures are the standard SI unit. If you do not know what this is, go to the definition of the dimension. The canonical unit is the one marked with `canonical: <unit>`.
+//! 
 //! ```ignore
+//! # use shrewnit::dimension;
 //! dimension!(
 //!     pub Torque {
-//!         si: NewtonMeters,
 //!         // This is our canonical unit.
 //!         canonical: NewtonMeters,
-//! ...
+//!         // ...
+//!     }
+//! );
 //! ```
-//!
+//! 
 //! You can also base your unit conversions off of existing units. Unfortunately, you cannot do this using `simple_unit!`.
-//!
-//! ```rust
-//! # use shrewnit::{Scalar, Length, UnitOf, Inches};
+//! 
+//! ```
+//! # use shrewnit::{UnitOf, Scalar, prelude::*};
 //! struct HalfInches;
 //! impl<S: Scalar> UnitOf<S, Length<S>> for HalfInches {
 //!     fn to_canonical(converted: S) -> S {
 //!         Inches::to_canonical(converted) * S::from_f64(2.0).unwrap()
 //!     }
 //!     fn from_canonical(canonical: S) -> S {
-//!         Inches::from_canonical(canonical) * S::from_f64(2.0).unwrap()
+//!         Inches::from_canonical(canonical * S::from_f64(2.0).unwrap())
 //!     }
 //! }
 //! ```
-//!
+//! 
 //! # FAQ
-//!
+//! 
+//! > What is the MSRV of Shrewnit?
+//! 
+//! With the `const_operators` feature disabled, the MSRV is version 1.33 (the oldest version supported by any unit library!).
+//! However, the feature uses significantly more recent features.
+//! 
 //! > Where does the name come from?
-//!
+//! 
 //! The name is inspired by the etrsucan shrew, the worlds smallest mammal.
-//!
+//! 
 //! > What does this library depend on?
-//!
-//! Shrewnit depends on one crate: `num-traits`.
+//! 
+//! Shrewnit always depends on one crate: `num-traits`.
+//! If the `const_operators` feature is enabled, `paste` will also be added to the dependencies.
 //! Despite this, Shrewnit is 100% Rust, `no_std`, libm, and alloc free!
-
+//! 
+//! > How will this library effect the trout population?
+//! 
+//! Shrewnit itself expands to over 48kloc and you can expect similar results if you add your own additional units and dimensions.
+//! This may impact compile times slightly especially due to the vast majority of these lines being trait implementations.
+//! That said, this library is going to compile much faster than any library that depends on `bindgen`.
 #![no_std]
 
 pub mod dimensions;
@@ -179,6 +225,11 @@ use core::ops::{Add, Div, Mul, Sub};
 
 pub use dimensions::*;
 use num_traits::{AsPrimitive, FromPrimitive};
+
+pub mod prelude {
+    pub use crate::dimensions::*;
+    pub use crate::{ScalarExt, Dimension, One};
+}
 
 #[doc(hidden)]
 #[cfg(feature = "const_operators")]
@@ -229,7 +280,7 @@ pub trait Dimension<S: Scalar = f64> {
     /// Usage of this function directly is discouraged. Instead, use multiplication or the `ScalarExt` trait.
     ///
     /// ```
-    /// # use shrewnit::{Meters, ScalarExt};
+    /// # use shrewnit::prelude::*;
     ///
     /// let quantity = 30.0f32 * Meters;
     /// let quantity = 30.0f32.meters();
@@ -248,6 +299,14 @@ pub trait Dimension<S: Scalar = f64> {
     fn from_canonical(value: S) -> Self;
 }
 
+/// Implemented for all units with linear transformations to the canonical unit of their dimension.
+/// 
+/// This trait is automatically implemented by the [`simple_unit!`](simple_unit) macro.
+/// 
+/// # Note
+/// 
+/// Do NOT implement this for units with *affine* transformations.
+/// An example of this would be Fahrenheit in the tempurature dimension. 
 pub trait One<S: Scalar, D: Dimension<S>>: UnitOf<S, D> {
     /// The dimension with a value of 1.0 in this unit.
     const ONE: D;
@@ -255,13 +314,9 @@ pub trait One<S: Scalar, D: Dimension<S>>: UnitOf<S, D> {
     const ONE_CANONICAL: S;
 }
 
-#[macro_export]
-macro_rules! to {
-    ($dimension:ident in $unit:ty) => {
-        $dimension.to::<$unit>()
-    };
-}
-
+/// Denotes that a type is a unit of a dimension.
+/// 
+/// This trait provides functionality for converting to and from the canonical unit of a dimension.
 pub trait UnitOf<S: Scalar, M: Dimension<S> + ?Sized> {
     /// Converts a scalar value from the canonical unit to unit of `Self`.
     fn from_canonical(canonical: S) -> S;

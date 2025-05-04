@@ -1,4 +1,4 @@
-use shrewnit::{to, Dimension, Feet, Length, Seconds};
+use shrewnit::prelude::*;
 
 shrewnit::simple_unit!(
     pub HalfInches of dimension Length = 78.740158 per canonical
@@ -13,6 +13,6 @@ fn main() {
 
     println!("{:?} {:?}", average_velocity, acceleration);
 
-    let half_inches = to!(distance in HalfInches);
+    let half_inches = distance.to::<HalfInches>();
     println!("{:?}", half_inches);
 }

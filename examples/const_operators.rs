@@ -1,4 +1,4 @@
-use shrewnit::{FeetPerSecond, Inches, Length, LinearVelocity, One, Seconds, Time};
+use shrewnit::prelude::*;
 
 fn main() {
     const LENGTH: Length = Inches::ONE;

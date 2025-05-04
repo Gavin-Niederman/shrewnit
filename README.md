@@ -74,20 +74,12 @@ error[E0277]: cannot multiply `Length` by `Time`
 
 ## Accessing the Value
 
-To get the value of a dimension, use the `Dimension` trait's `to` function.
+To get the value of a dimension, use the `to` function.
 
 ```rust
 let time = 5.0 * Seconds;
 
 println!("{}", time.to::<Minutes>());
-```
-
-If you prefer your code to read like English, you can use the `to!` macro.
-
-```rust
-let time = 5.0 * Seconds;
-
-println!("{}", to!(time in Minutes));
 ```
 
 ## Using Shrewnit in const contexts
@@ -177,7 +169,6 @@ The conversions will be in terms of the dimension's canonical unit. The canonica
 ```rust
 dimension!(
     pub Torque {
-        si: NewtonMeters,
         // This is our canonical unit.
         canonical: NewtonMeters,
 ...
@@ -213,3 +204,9 @@ The name is inspired by the etrsucan shrew, the worlds smallest mammal.
 Shrewnit always depends on one crate: `num-traits`.
 If the `const_operators` feature is enabled, `paste` will also be added to the dependencies.
 Despite this, Shrewnit is 100% Rust, `no_std`, libm, and alloc free!
+
+> How will this library effect the trout population?
+
+Shrewnit itself expands to over 48kloc and you can expect similar results if you add your own additional units and dimensions.
+This may impact compile times slightly especially due to the vast majority of these lines being trait implementations.
+That said, this library is going to compile much faster than any library that depends on `bindgen`.
