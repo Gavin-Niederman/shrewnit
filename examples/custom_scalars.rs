@@ -10,7 +10,7 @@ fn main() {
 
     // Unit math works with measures of the same scalar type.
     // Mixing scalar types will result in a compile error.
-    let velocity = dbg!(distance / dbg!( 3.seconds()));
+    let velocity = dbg!(distance / dbg!(3.seconds()));
 
     println!("{:?}", velocity);
     print_in_inches(distance);
