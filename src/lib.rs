@@ -205,7 +205,7 @@
 //!
 //! > Where does the name come from?
 //!
-//! The name is inspired by the etrsucan shrew, the worlds smallest mammal.
+//! The name is inspired by the Etruscan shrew, the worlds smallest mammal.
 //!
 //! > What does this library depend on?
 //!
