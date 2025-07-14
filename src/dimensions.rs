@@ -228,6 +228,7 @@ dimension!(
         DegreesPerSecond: 57.2957795130823 per canonical,
     } where {
         Self * Time => Angle in Radians,
+        Self / Time => AngularAcceleration in RadiansPerSecondSquared,
     }
 );
 dimension!(
