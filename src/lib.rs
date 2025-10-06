@@ -754,7 +754,7 @@ macro_rules! simple_unit {
 ///     /// A dimension of some kind.
 ///     pub MyCustomDimension {
 ///         canonical: MyStandardUnit,
-///         
+///
 ///         MyStandardUnit: 1.0 per canonical,
 ///
 ///         MyHalfUnit: 2.0 per canonical,
@@ -781,7 +781,7 @@ macro_rules! dimension {
         })?
     ) => {
         $(#[$meta])*
-        #[derive(Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
+        #[derive(Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Default)]
         $vis struct $name<S: $crate::Scalar = f64>(S);
 
         impl<S: $crate::Scalar> $crate::Dimension<S> for $name<S> {
