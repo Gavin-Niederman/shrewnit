@@ -221,7 +221,10 @@
 #![no_std]
 
 pub mod dimensions;
-use core::ops::{Add, Div, Mul, Sub};
+use core::{
+    iter::Sum,
+    ops::{Add, Div, Mul, Sub},
+};
 
 pub use dimensions::*;
 use num_traits::{AsPrimitive, FromPrimitive};
@@ -242,20 +245,20 @@ pub trait Scalar:
     FromPrimitive
     + AsPrimitive<f64>
     + Clone
-    + Mul<Self, Output = Self>
-    + Div<Self, Output = Self>
-    + Add<Self, Output = Self>
-    + Sub<Self, Output = Self>
+    + Mul<Output = Self>
+    + Div<Output = Self>
+    + Add<Output = Self>
+    + Sub<Output = Self>
 {
 }
 impl<
         T: FromPrimitive
             + AsPrimitive<f64>
             + Clone
-            + Mul<T, Output = T>
-            + Div<T, Output = T>
-            + Add<T, Output = T>
-            + Sub<T, Output = T>,
+            + Mul<Output = T>
+            + Div<Output = T>
+            + Add<Output = T>
+            + Sub<Output = T>,
     > Scalar for T
 {
 }
@@ -798,6 +801,23 @@ macro_rules! dimension {
         }
         $crate::__dim_const_imp!($name);
 
+        impl<S: $crate::Scalar + PartialOrd> $name<S> {
+            pub fn max(self, other: Self) -> Self {
+                if self >= other {
+                    self
+                } else {
+                    other
+                }
+            }
+            pub fn min(self, other: Self) -> Self {
+                if self <= other {
+                    self
+                } else {
+                    other
+                }
+            }
+        }
+
         impl<S: $crate::Scalar + core::fmt::Debug> core::fmt::Debug for $name<S> {
             fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                 write!(f, "{}({:?} {})", stringify!($name), self.0, stringify!($canonical_unit))
@@ -848,6 +868,15 @@ macro_rules! dimension {
         impl<S: $crate::Scalar> core::ops::SubAssign<$name<S>> for $name<S> {
             fn sub_assign(&mut self, rhs: $name<S>) {
                 self.0 = self.0.clone() - rhs.0;
+            }
+        }
+
+        impl<S: $crate::Scalar> core::iter::Sum<$name<S>> for $name<S> where $name<S>: Default {
+            fn sum<I: Iterator<Item=Self>>(iter: I) -> Self {
+                iter.fold(
+                    $name::default(),
+                    |a, b| a + b,
+                )
             }
         }
 
