@@ -7,7 +7,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "num-traits"
-version = "0.2.16"
+version = "0.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "autocfg 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -22,11 +22,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "shrewnit"
 version = "0.2.1"
 dependencies = [
- "num-traits 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num-traits 0.2.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "paste 1.0.15 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [metadata]
 "checksum autocfg 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ace50bade8e6234aa140d9a2f552bbee1db4d353f69b8217bc503490fc1a9f26"
-"checksum num-traits 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)" = "f30b0abd723be7e2ffca1272140fac1a2f084c77ec3e123c192b66af1ee9e6c2"
+"checksum num-traits 0.2.19 (registry+https://github.com/rust-lang/crates.io-index)" = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 "checksum paste 1.0.15 (registry+https://github.com/rust-lang/crates.io-index)" = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
