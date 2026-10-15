@@ -195,6 +195,7 @@ dimension! {
     } where {
         Self * Time => LinearVelocity in MetersPerSecond,
         Self * Mass => Force in Newtons,
+        Self / LinearVelocity => Time in Seconds,
     }
 }
 
